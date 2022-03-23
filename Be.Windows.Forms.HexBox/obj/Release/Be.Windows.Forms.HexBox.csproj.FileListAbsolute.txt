@@ -1,0 +1,6 @@
+C:\Users\dell\Downloads\Be.HexEditor-1.6.0\sources\Be.Windows.Forms.HexBox\bin\Release\Be.Windows.Forms.HexBox.dll
+C:\Users\dell\Downloads\Be.HexEditor-1.6.0\sources\Be.Windows.Forms.HexBox\obj\Release\Be.Windows.Forms.HexBox.resources
+C:\Users\dell\Downloads\Be.HexEditor-1.6.0\sources\Be.Windows.Forms.HexBox\obj\Release\Be.Windows.Forms.Properties.Resources.resources
+C:\Users\dell\Downloads\Be.HexEditor-1.6.0\sources\Be.Windows.Forms.HexBox\obj\Release\Be.Windows.Forms.HexBox.csproj.GenerateResource.cache
+C:\Users\dell\Downloads\Be.HexEditor-1.6.0\sources\Be.Windows.Forms.HexBox\obj\Release\Be.Windows.Forms.HexBox.csproj.CoreCompileInputs.cache
+C:\Users\dell\Downloads\Be.HexEditor-1.6.0\sources\Be.Windows.Forms.HexBox\obj\Release\Be.Windows.Forms.HexBox.dll
