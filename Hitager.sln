@@ -2,9 +2,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30907.101
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hitager", "Hitager\Hitager.csproj", "{FF4ADB46-210E-429E-9176-68613F5CBE90}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hitager", "sources\Hitager\Hitager.csproj", "{FF4ADB46-210E-429E-9176-68613F5CBE90}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Be.Windows.Forms.HexBox", "Be.Windows.Forms.HexBox\Be.Windows.Forms.HexBox.csproj", "{26C5F25F-B450-4CAF-AD8B-B8D11AE73457}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Be.Windows.Forms.HexBox", "sources\Be.Windows.Forms.HexBox\Be.Windows.Forms.HexBox.csproj", "{26C5F25F-B450-4CAF-AD8B-B8D11AE73457}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
