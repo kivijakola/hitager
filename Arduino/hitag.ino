@@ -37,6 +37,8 @@ int delay_1 = 20;
 int delay_0 = 14;
 int delay_p = 5;
 int hysteresis =1;
+//volatile unsigned long vvdiDelay = 7768;
+volatile unsigned long vvdiDelay = 6982;
 
 void setup()
 {
@@ -79,15 +81,9 @@ void loop()
   {
     case 'i':
     {
-      char serialbuf[50];
       Serial.print("transfer\n");
       
       byte cmdlength = serialToByte();
-      if(debug)
-      {
-        sprintf(serialbuf,"length bits: %d\n", cmdlength);
-        Serial.print(serialbuf);
-      }
       
       //adapt();
       byte  authcmd[300] = {0};
@@ -97,23 +93,13 @@ void loop()
       {
         authcmd[i] = serialToByte();
       }
-      if(debug)
-      {
-        Serial.print("Received command:");
-        for(int i = 0; i<(cmdlength+7)/8;i++)
-        {
-          Serial.print(authcmd[i],HEX);
-          Serial.print(", ");
-        }
-        Serial.print("\n");
-      }
+
       communicateTag(authcmd, cmdlength );
       Serial.print("EOF\n");
       break;
     }
     case 'a':
     {
-      char serialbuf[50];
       Serial.print("adapt offset\n");
       
       rfoffset = serialToByte();
@@ -125,19 +111,17 @@ void loop()
     }
     case 'b':
     {
-      char serialbuf[50];
       Serial.print("decoding mode\n");
       
       decodemode = serialToByte();
       Serial.print("RESP:\n");
-      Serial.print(debug,HEX);
+      Serial.print(decodemode,HEX);
       Serial.print("\nEOF\n");
       
       break;
     }
     case 'd':
     {
-      char serialbuf[50];
       Serial.print("debug mode\n");
       
       debug = serialToByte();
@@ -150,7 +134,6 @@ void loop()
 
     case 'g':
     {
-      char serialbuf[50];
       Serial.print("Gain adjust\n");
       
       gain = serialToByte() & 0x3;
@@ -162,7 +145,6 @@ void loop()
     }
     case 'h':
     {
-      char serialbuf[50];
       Serial.print("Hysteresis\n");
       
       hysteresis = serialToByte() & 0x1;
@@ -203,7 +185,6 @@ void loop()
     }
     case 'z':
     {
-      char serialbuf[50];
       Serial.print("Pulse 0 delay adjust\n");
       
       delay_0 = serialToByte() & 0xff;
@@ -215,7 +196,6 @@ void loop()
     }
     case 'x':
     {
-      char serialbuf[50];
       Serial.print("Pulse 1 delay adjust\n");
       
       delay_1 = serialToByte() & 0xff;
@@ -227,7 +207,6 @@ void loop()
     }
     case 'c':
     {
-      char serialbuf[50];
       Serial.print("Pulse width delay adjust\n");
       
       delay_p = serialToByte() & 0xff;
@@ -237,13 +216,122 @@ void loop()
       
       break;
     }
+    case 'q':
+    {
+
+      Serial.print("Super chip init\n");
+      writePCF7991Reg(0x50 | (hysteresis &0x1) <<1,8);//rf on
+      _delay_us(350);
+      _delay_us(2500);  
+      superInit(); 
+      break;
+    }
+    case 'w':
+    {
+      Serial.print("Set VVDI delay");
+      byte  delays[3] = {0};
+      
+      for(int i = 1; i>=0;i--)
+      {
+        delays[i] = serialToByte();
+      }
+      int mydelay= ((int *)delays)[0];
+      Serial.print(mydelay);
+      Serial.print("\n");
+
+      vvdiDelay+=mydelay;
+      Serial.print(vvdiDelay);
+      Serial.print("\nEOF\n");
+      break;
+    }
+    case 'r':
+    {
+      byte cmdlength = serialToByte();
+      byte  cmd[300] = {0};
+  
+      if(cmdlength > 1 && cmdlength < 200)
+      for(int i = 0; i<(cmdlength*2+3);i++)
+      {
+        cmd[i] = serialToByte();
+      }
+      writePCF7991Reg(0x51,8);//rf off
+      _delay_us(1000);
+      writePCF7991Reg(0x50 | (hysteresis &0x1) <<1,8);//rf on
+      _delay_us(350);
+        
+      digitalWrite(SCK_pin, LOW);
+      writePCF7991Reg(0xe0,3);
+           
+      unsigned int startDelay = cmd[0];
+      startDelay<<=8;
+      startDelay |= cmd[1];
+      
+      for(unsigned int d = 0; d<startDelay;d++)
+      {
+          _delay_us(100);    
+      }
+      digitalWrite(SCK_pin, HIGH); 
+      _delay_us(70);
+      digitalWrite(SCK_pin, LOW);
+      writePCF7991Reg(0x10,8);
+
+      for(int i = 0; i<(cmdlength);i++)
+      {
+          digitalWrite(dout_pin, HIGH);
+          for(int d = 0; d<cmd[i*2 +2];d++)
+          {
+              _delay_us(9);    
+          }
+          digitalWrite(dout_pin, LOW);
+          for(int d = 0; d<cmd[i*2+3];d++)
+          {
+              _delay_us(9);    
+          }
+      }
+      
+      digitalWrite(dout_pin, HIGH);
+      for(int d = 0; d<cmd[cmdlength*2+2];d++)
+      {
+          _delay_us(9);    
+      }
+      digitalWrite(dout_pin, LOW);
+      _delay_us(3000);
+      
+      readTagResp();
+      processManchester();
+      
+      Serial.print("\nEOF\n");
+
+    }
   }
   while (Serial.available() > 0)
   {
     byte dummyread = Serial.read();
   }
-
 }
+
+void superInit()
+{
+  byte  authcmd[] = {0x58 ,0x48 ,0x4F ,0x52 ,0x53 ,0x45};
+  byte  authcmd2[] = {0x07, 0x2F};
+  byte  authcmd3[] = {0x73, 0x72};
+  unsigned long adjust = 0;
+  
+  writeToTag(authcmd, 0x30 );
+  writePCF7991Reg(0xe0,3);
+  _delay_us(20000);
+  digitalWrite(SCK_pin, HIGH); 
+  writeToTag(authcmd2, 0x10 );
+  writePCF7991Reg(0xe0,3);
+  
+  for(unsigned long d = 0; d < vvdiDelay; d++)
+    _delay_us(2);
+  
+  digitalWrite(SCK_pin, HIGH); 
+  communicateTag(authcmd3, 0x10 );
+  Serial.print("\nEOF\n");    
+}
+
 byte serialToByte()
 {
   byte retval = 0;
@@ -384,7 +472,10 @@ void writeToTag(byte *data, int bits)
   }
   
   //end of transmission
-  _delay_us(500);
+  if(decodemode == 0)
+    _delay_us(1200);
+  else
+    _delay_us(400); //Why biphase needs shorter delay???
 
 }
 
