@@ -11,7 +11,7 @@
 
 const int SCK_pin = 6;
 const int dout_pin = 7;
-const int din_pin = 2; // Arduino Mega2560 original value 21 Mega2560 can also use 2 
+const int din_pin = 21; // Arduino Mega2560 original value 21 Mega2560 can also use 2 
 //const int din_pin = 2; //Use with Arduino Nano
 //Note: din_pin must have external interrupt feature!
 
