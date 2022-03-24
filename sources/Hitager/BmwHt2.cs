@@ -81,7 +81,7 @@ namespace Hitager
             int cmd = 0xC1C0;
             String pageReply = portHandler.portWR("i0a" + cmd.ToString("X4"));
             if (pageReply.Length == 0)
-                return "ERROR";
+                return "B1B1B1B1";
             handleDebug(pageReply + Environment.NewLine);
 
             return pageReply;
@@ -97,20 +97,20 @@ namespace Hitager
         private void read_Click(object sender, EventArgs e)
         {
 
-            bool resetBlocks = true;
+            bool resetBlocks = false;
             read.Enabled = false;
             write.Enabled = false;
             portHandler.portWR("o");
             String pages = "";
 
-            String xmaMode = portHandler.portWR("i0540");
+            String xmaMode = portHandler.portWR("i0540");   // Enter XMA_Mode
 
             int blockCount = (int)blocksToHandle.Value;
             int blockStart = (int)blocksStartNum.Value;
 
             for (int j = blockStart; j <= blockCount; j++)
             {
-                if (!(j == 0 || j == 15 || j == 31))
+                if (!(j == 0 || j == 31))                
                 {
                     if (resetBlocks)
                     {
@@ -118,9 +118,9 @@ namespace Hitager
                         portHandler.portWR("i0540");
                     }
 
-                    portHandler.portWR("i0A83C0");
+                    portHandler.portWR("i0A83C0");          // Set_Address CMD
                 
-                    if (selectBlock(j).Equals("ERROR"))
+                    if (selectBlock(j).Equals("ERROR"))     // Address_Write
                     {
                         handleDebug("ERROR! Cannot read all blocks!");
                         break;
@@ -130,10 +130,33 @@ namespace Hitager
                 {
                     String received = "00000000";
 
-                    if ((j == 0 || j == 15 || (j == 14 && i == 7) || j == 31))
-                        received = "00000000";
-                    else
+                    if ((j == 0 || (j == 14 && i == 7) || j == 31))
+                    {
+                        /* Not readable pages */
+                        received = "B1B1B1B1";
+                    }
+                    else if (j == 15)
+                    {
+                        /* Special procedure for protected block */
+                        int try_nr = 1;
+                        xmaMode = "0";
+
+                        while ((try_nr < 4) && (!xmaMode.Contains("FFFFFFE8")))
+                        {
+                            /* Try to enter XMA mode until key confirms */
+                            if (try_nr > 1) handleDebug("Repeat entering XMA: Try " + try_nr.ToString());
+                            xmaMode = portHandler.portWR("i0540");      // Enter XMA mode
+                            try_nr++;
+                        }
+
                         received = ReadPage(i);
+                    }
+                    else
+                    {
+                        /* Normal Page */
+                        received = ReadPage(i);
+                    }
+                        
                     
                     if (received.Length < 8)
                         received = received + "00000000";
