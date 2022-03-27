@@ -36,6 +36,7 @@ namespace Hitager
             this.blocksStartNum = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
+            this.Button_Remote = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.blocksToHandle)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.blocksStartNum)).BeginInit();
             this.SuspendLayout();
@@ -123,10 +124,21 @@ namespace Hitager
             this.label3.TabIndex = 15;
             this.label3.Text = "To:";
             // 
+            // Button_Remote
+            // 
+            this.Button_Remote.Location = new System.Drawing.Point(515, 3);
+            this.Button_Remote.Name = "Button_Remote";
+            this.Button_Remote.Size = new System.Drawing.Size(109, 34);
+            this.Button_Remote.TabIndex = 16;
+            this.Button_Remote.Text = "Remote";
+            this.Button_Remote.UseVisualStyleBackColor = true;
+            this.Button_Remote.Click += new System.EventHandler(this.Remote_Functions_Click);
+            // 
             // BmwHt2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.Button_Remote);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.blocksStartNum);
@@ -152,5 +164,6 @@ namespace Hitager
         private System.Windows.Forms.NumericUpDown blocksStartNum;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Button Button_Remote;
     }
 }
