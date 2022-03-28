@@ -87,6 +87,25 @@ namespace Hitager
             return pageReply;
         }
 
+        public String ReadID()
+        {
+            portHandler.portWR("o");
+
+            String cardID = portHandler.portWR("i05C0");
+            if (cardID.Equals("TIMEOUT"))
+            {
+                handleDebug("TIMEOUT");
+
+            }
+            else if (cardID.Length < 8)
+            {
+                handleDebug("ERROR ID");
+                handleDebug("Please retry reading!");
+            }
+            portHandler.portWR("f");
+
+            return cardID;
+        }
         private string selectBlock(int block)
         {
             String blockReply = portHandler.portWR("i20000700" + block.ToString("X2"));
@@ -94,9 +113,9 @@ namespace Hitager
             return blockReply;
         }
 
-        private void read_Click(object sender, EventArgs e)
+        /* Read selected Block (= 8 pages = 256 byte) */
+        public string readBlocks(int blockAddressStart, int blockAddressEnd)
         {
-
             bool resetBlocks = false;
             read.Enabled = false;
             write.Enabled = false;
@@ -105,12 +124,11 @@ namespace Hitager
 
             String xmaMode = portHandler.portWR("i0540");   // Enter XMA_Mode
 
-            int blockCount = (int)blocksToHandle.Value;
-            int blockStart = (int)blocksStartNum.Value;
 
-            for (int j = blockStart; j <= blockCount; j++)
+            for (int j = blockAddressStart; j <= blockAddressEnd; j++)
             {
-                if (!(j == 0 || j == 31))                
+                /* Select the block */
+                if (!(j == 0 || j == 31))
                 {
                     if (resetBlocks)
                     {
@@ -120,12 +138,15 @@ namespace Hitager
 
                     portHandler.portWR("i0A83C0");          // Set_Address CMD
                 
+
                     if (selectBlock(j).Equals("ERROR"))     // Address_Write
                     {
                         handleDebug("ERROR! Cannot read all blocks!");
                         break;
                     }
                 }
+
+                /*Read pages from selected block */
                 for (int i = 0; i < 8; i++)
                 {
                     String received = "00000000";
@@ -156,42 +177,50 @@ namespace Hitager
                         /* Normal Page */
                         received = ReadPage(i);
                     }
-                        
-                    
+                         
+
+
                     if (received.Length < 8)
-                        received = received + "00000000";
+                        received = received + "B1B1B1B1";
                     pages += received.Substring(0, 8);
 
                 }
-
             }
 
+            write.Enabled = true;
+            read.Enabled = true;
+            portHandler.portWR("f");
+
+            return pages;
+
+        }
+
+
+        private void read_Click(object sender, EventArgs e)
+        {
+            String blocks = readBlocks((int)blocksStartNum.Value, (int)blocksToHandle.Value);
+    
             DynamicByteProvider dynamicByteProvider;
             try
             {
-                dynamicByteProvider = new DynamicByteProvider(ConvertHexStringToByteArray(pages));
+                dynamicByteProvider = new DynamicByteProvider(ConvertHexStringToByteArray(blocks));
                 hexBox.ByteProvider = dynamicByteProvider;
             }
             catch (Exception x)
             {
                 handleDebug("ERROR! Cannot parse bytes to array!");
-                handleDebug(pages);
+                handleDebug(blocks);
                 read.Enabled = true;
                 portHandler.portWR("f");
                 return;
             }
 
-            segmentCache = pages;
-            if (blockCount > 0)
-            {
+            segmentCache = blocks;
 
-            }
             HexUpdateRaiseEvent();
-            write.Enabled = true;
-            read.Enabled = true;
-            portHandler.portWR("f");
         }
-        public static byte[] ConvertHexStringToByteArray(string hexString)
+
+        public byte[] ConvertHexStringToByteArray(string hexString)
         {
             if (hexString.Length % 2 != 0)
             {
@@ -216,10 +245,10 @@ namespace Hitager
 
             String xmaMode = portHandler.portWR("i0540");
 
-            int blockCount = (int)blocksToHandle.Value;
-            int blockStart = (int)blocksStartNum.Value;
+            int blockAddressEnd = (int)blocksToHandle.Value;
+            int blockAddressStart = (int)blocksStartNum.Value;
 
-            for (int blocks = blockStart; blocks <= blockCount; blocks++)
+            for (int blocks = blockAddressStart; blocks <= blockAddressEnd; blocks++)
             {
                 String pages = "";
                 int startWrite = 0;
@@ -264,6 +293,18 @@ namespace Hitager
         private void blocksToHandle_ValueChanged(object sender, EventArgs e)
         {
             write.Enabled = false;
+        }
+
+        private void Remote_Functions_Click(object sender, EventArgs e)
+        {
+            BMW_Remote Remote = new BMW_Remote(this);
+            Remote.Show();
+        }
+
+        private void BMW_Vehicle_Data_Click(object sender, EventArgs e)
+        {
+            BMW_Vehicle_Data VehicleData = new BMW_Vehicle_Data(this);
+            VehicleData.Show();
         }
     }
 }

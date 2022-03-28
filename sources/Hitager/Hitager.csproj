@@ -170,6 +170,18 @@
     <Compile Include="BmwHt2.Designer.cs">
       <DependentUpon>BmwHt2.cs</DependentUpon>
     </Compile>
+    <Compile Include="BMW_Remote.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BMW_Remote.Designer.cs">
+      <DependentUpon>BMW_Remote.cs</DependentUpon>
+    </Compile>
+    <Compile Include="BMW_Vehicle_Data.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BMW_Vehicle_Data.Designer.cs">
+      <DependentUpon>BMW_Vehicle_Data.cs</DependentUpon>
+    </Compile>
     <Compile Include="Core\CoreUtil.cs" />
     <Compile Include="Core\FormEx.cs">
       <SubType>Form</SubType>
@@ -289,6 +301,12 @@
     <EmbeddedResource Include="BmwHt2.resx">
       <DependentUpon>BmwHt2.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="BMW_Remote.resx">
+      <DependentUpon>BMW_Remote.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BMW_Vehicle_Data.resx">
+      <DependentUpon>BMW_Vehicle_Data.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Hitag2.resx">
       <DependentUpon>Hitag2.cs</DependentUpon>
     </EmbeddedResource>
@@ -390,9 +408,11 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormHexEditor.ru.resx">
       <DependentUpon>FormHexEditor.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="FormHexEditor.zh-Hans.resx">
       <DependentUpon>FormHexEditor.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="FormOptions.de.resx">
       <DependentUpon>FormOptions.cs</DependentUpon>
@@ -524,6 +544,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormHexEditor.ja.resx">
       <DependentUpon>FormHexEditor.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="FormOptions.ja.resx">
       <DependentUpon>FormOptions.cs</DependentUpon>
