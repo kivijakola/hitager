@@ -125,7 +125,6 @@ namespace Hitager
             String xmaMode = portHandler.portWR("i0540");   // Enter XMA_Mode
 
 
-
             for (int j = blockAddressStart; j <= blockAddressEnd; j++)
             {
                 /* Select the block */
@@ -138,6 +137,7 @@ namespace Hitager
                     }
 
                     portHandler.portWR("i0A83C0");          // Set_Address CMD
+                
 
                     if (selectBlock(j).Equals("ERROR"))     // Address_Write
                     {
@@ -177,6 +177,8 @@ namespace Hitager
                         /* Normal Page */
                         received = ReadPage(i);
                     }
+                         
+
 
                     if (received.Length < 8)
                         received = received + "B1B1B1B1";
