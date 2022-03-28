@@ -176,6 +176,12 @@
     <Compile Include="BMW_Remote.Designer.cs">
       <DependentUpon>BMW_Remote.cs</DependentUpon>
     </Compile>
+    <Compile Include="BMW_Vehicle_Data.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BMW_Vehicle_Data.Designer.cs">
+      <DependentUpon>BMW_Vehicle_Data.cs</DependentUpon>
+    </Compile>
     <Compile Include="Core\CoreUtil.cs" />
     <Compile Include="Core\FormEx.cs">
       <SubType>Form</SubType>
@@ -297,6 +303,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="BMW_Remote.resx">
       <DependentUpon>BMW_Remote.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BMW_Vehicle_Data.resx">
+      <DependentUpon>BMW_Vehicle_Data.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Hitag2.resx">
       <DependentUpon>Hitag2.cs</DependentUpon>

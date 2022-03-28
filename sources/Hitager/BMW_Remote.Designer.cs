@@ -38,7 +38,7 @@ namespace Hitager
             // 
             // Textbox_RSK_Hi
             // 
-            this.Textbox_RSK_Hi.Location = new System.Drawing.Point(90, 45);
+            this.Textbox_RSK_Hi.Location = new System.Drawing.Point(27, 34);
             this.Textbox_RSK_Hi.MaxLength = 8;
             this.Textbox_RSK_Hi.Name = "Textbox_RSK_Hi";
             this.Textbox_RSK_Hi.Size = new System.Drawing.Size(87, 20);
@@ -46,7 +46,7 @@ namespace Hitager
             // 
             // Textbox_RSK_Lo
             // 
-            this.Textbox_RSK_Lo.Location = new System.Drawing.Point(90, 81);
+            this.Textbox_RSK_Lo.Location = new System.Drawing.Point(27, 77);
             this.Textbox_RSK_Lo.MaxLength = 8;
             this.Textbox_RSK_Lo.Name = "Textbox_RSK_Lo";
             this.Textbox_RSK_Lo.Size = new System.Drawing.Size(87, 20);
@@ -55,7 +55,7 @@ namespace Hitager
             // label_RSK_Hi
             // 
             this.label_RSK_Hi.AutoSize = true;
-            this.label_RSK_Hi.Location = new System.Drawing.Point(12, 48);
+            this.label_RSK_Hi.Location = new System.Drawing.Point(24, 18);
             this.label_RSK_Hi.Name = "label_RSK_Hi";
             this.label_RSK_Hi.Size = new System.Drawing.Size(42, 13);
             this.label_RSK_Hi.TabIndex = 21;
@@ -64,7 +64,7 @@ namespace Hitager
             // label_RSK_lo
             // 
             this.label_RSK_lo.AutoSize = true;
-            this.label_RSK_lo.Location = new System.Drawing.Point(12, 84);
+            this.label_RSK_lo.Location = new System.Drawing.Point(24, 61);
             this.label_RSK_lo.Name = "label_RSK_lo";
             this.label_RSK_lo.Size = new System.Drawing.Size(44, 13);
             this.label_RSK_lo.TabIndex = 22;
@@ -72,7 +72,7 @@ namespace Hitager
             // 
             // ReadRemote_Button
             // 
-            this.ReadRemote_Button.Location = new System.Drawing.Point(90, 119);
+            this.ReadRemote_Button.Location = new System.Drawing.Point(27, 127);
             this.ReadRemote_Button.Name = "ReadRemote_Button";
             this.ReadRemote_Button.Size = new System.Drawing.Size(87, 36);
             this.ReadRemote_Button.TabIndex = 23;
@@ -84,14 +84,14 @@ namespace Hitager
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(196, 196);
+            this.ClientSize = new System.Drawing.Size(205, 171);
             this.Controls.Add(this.ReadRemote_Button);
             this.Controls.Add(this.label_RSK_lo);
             this.Controls.Add(this.label_RSK_Hi);
             this.Controls.Add(this.Textbox_RSK_Lo);
             this.Controls.Add(this.Textbox_RSK_Hi);
             this.Name = "BMW_Remote";
-            this.Text = "BMW_Remote";
+            this.Text = "BMW Remote";
             this.ResumeLayout(false);
             this.PerformLayout();
 

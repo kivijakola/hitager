@@ -217,7 +217,8 @@ namespace Hitager
 
             HexUpdateRaiseEvent();
         }
-        public static byte[] ConvertHexStringToByteArray(string hexString)
+
+        public byte[] ConvertHexStringToByteArray(string hexString)
         {
             if (hexString.Length % 2 != 0)
             {
@@ -296,6 +297,12 @@ namespace Hitager
         {
             BMW_Remote Remote = new BMW_Remote(this);
             Remote.Show();
+        }
+
+        private void BMW_Vehicle_Data_Click(object sender, EventArgs e)
+        {
+            BMW_Vehicle_Data VehicleData = new BMW_Vehicle_Data(this);
+            VehicleData.Show();
         }
     }
 }
