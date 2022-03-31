@@ -56,11 +56,11 @@ namespace Hitager
             hexBox = box;
         }
 
-        private void handleDebug(String text)
+        public void handleDebug(String text)
         {
             DebugUpdateRaiseEvent(text + Environment.NewLine);
         }
-        private PortHandler portHandler;
+        public PortHandler portHandler;
         public void SetPortHandler(ref PortHandler handler)
         {
             portHandler = handler;
@@ -136,7 +136,15 @@ namespace Hitager
                         portHandler.portWR("i0540");
                     }
 
-                    portHandler.portWR("i0A83C0");          // Set_Address CMD
+                    int tries = 1;
+                    String response;
+                    do
+                    {
+                        response = portHandler.portWR("i0A83C0");          // Set_Address CMD
+                        if (tries > 1) handleDebug("Write address, try " + tries.ToString());
+                        tries++;
+                    } while (!response.Contains("83C0") && tries<5);
+                    
                 
 
                     if (selectBlock(j).Equals("ERROR"))     // Address_Write
@@ -305,6 +313,17 @@ namespace Hitager
         {
             BMW_Vehicle_Data VehicleData = new BMW_Vehicle_Data(this);
             VehicleData.Show();
+        }
+
+        private void button_XMA_Cmd_Click(object sender, EventArgs e)
+        {
+            portHandler.portWR("o");
+            String xmaMode = portHandler.portWR("i0540");   // Enter XMA_Mode
+
+            portHandler.portWR("i0A"+ Textbox_XMA_CMD.Text);
+
+            portHandler.portWR("f");
+
         }
     }
 }

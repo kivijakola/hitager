@@ -39,6 +39,8 @@ namespace Hitager
             this.Button_Remote = new System.Windows.Forms.Button();
             this.Button_Vehicle_Data = new System.Windows.Forms.Button();
             this.BmwKeyMemory_Groupbox = new System.Windows.Forms.GroupBox();
+            this.button_XMA_Cmd = new System.Windows.Forms.Button();
+            this.Textbox_XMA_CMD = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.blocksToHandle)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.blocksStartNum)).BeginInit();
             this.BmwKeyMemory_Groupbox.SuspendLayout();
@@ -163,10 +165,31 @@ namespace Hitager
             this.BmwKeyMemory_Groupbox.TabStop = false;
             this.BmwKeyMemory_Groupbox.Text = "Key Memory";
             // 
+            // button_XMA_Cmd
+            // 
+            this.button_XMA_Cmd.Location = new System.Drawing.Point(385, 19);
+            this.button_XMA_Cmd.Name = "button_XMA_Cmd";
+            this.button_XMA_Cmd.Size = new System.Drawing.Size(109, 34);
+            this.button_XMA_Cmd.TabIndex = 19;
+            this.button_XMA_Cmd.Text = "Execute CMD";
+            this.button_XMA_Cmd.UseVisualStyleBackColor = true;
+            this.button_XMA_Cmd.Click += new System.EventHandler(this.button_XMA_Cmd_Click);
+            // 
+            // Textbox_XMA_CMD
+            // 
+            this.Textbox_XMA_CMD.Location = new System.Drawing.Point(385, 65);
+            this.Textbox_XMA_CMD.MaxLength = 8;
+            this.Textbox_XMA_CMD.Name = "Textbox_XMA_CMD";
+            this.Textbox_XMA_CMD.Size = new System.Drawing.Size(127, 20);
+            this.Textbox_XMA_CMD.TabIndex = 20;
+            this.Textbox_XMA_CMD.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
             // BmwHt2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.Textbox_XMA_CMD);
+            this.Controls.Add(this.button_XMA_Cmd);
             this.Controls.Add(this.BmwKeyMemory_Groupbox);
             this.Controls.Add(this.Button_Vehicle_Data);
             this.Controls.Add(this.Button_Remote);
@@ -177,6 +200,7 @@ namespace Hitager
             this.BmwKeyMemory_Groupbox.ResumeLayout(false);
             this.BmwKeyMemory_Groupbox.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -192,5 +216,7 @@ namespace Hitager
         private System.Windows.Forms.Button Button_Remote;
         private System.Windows.Forms.Button Button_Vehicle_Data;
         private System.Windows.Forms.GroupBox BmwKeyMemory_Groupbox;
+        private System.Windows.Forms.Button button_XMA_Cmd;
+        private System.Windows.Forms.TextBox Textbox_XMA_CMD;
     }
 }
