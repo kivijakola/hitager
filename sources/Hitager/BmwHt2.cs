@@ -12,6 +12,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.Threading;
 
 namespace Hitager
 {
@@ -113,6 +114,21 @@ namespace Hitager
             return blockReply;
         }
 
+        public bool sendCmdUntilResponse(String CMD, String expectedResponse, int maxRepetitions)
+        {
+            int tries = 1;
+            string response;
+
+            do
+            {
+                if (tries > 1) handleDebug("Send cmd, try " + tries.ToString());
+                response = portHandler.portWR(CMD);
+                tries++;
+            } while (!response.Contains(expectedResponse) && tries < maxRepetitions);
+
+            return response.Contains(expectedResponse);
+        }
+
         /* Read selected Block (= 8 pages = 256 byte) */
         public string readBlocks(int blockAddressStart, int blockAddressEnd)
         {
@@ -121,9 +137,9 @@ namespace Hitager
             write.Enabled = false;
             portHandler.portWR("o");
             String pages = "";
+            String response = "";
 
-            String xmaMode = portHandler.portWR("i0540");   // Enter XMA_Mode
-
+            sendCmdUntilResponse("i0540", "FFFFFFE8", 10);
 
             for (int j = blockAddressStart; j <= blockAddressEnd; j++)
             {
@@ -136,17 +152,8 @@ namespace Hitager
                         portHandler.portWR("i0540");
                     }
 
-                    int tries = 1;
-                    String response;
-                    do
-                    {
-                        response = portHandler.portWR("i0A83C0");          // Set_Address CMD
-                        if (tries > 1) handleDebug("Write address, try " + tries.ToString());
-                        tries++;
-                    } while (!response.Contains("83C0") && tries<5);
+                    sendCmdUntilResponse("i0A83C0", "83C0", 10);
                     
-                
-
                     if (selectBlock(j).Equals("ERROR"))     // Address_Write
                     {
                         handleDebug("ERROR! Cannot read all blocks!");
@@ -167,22 +174,15 @@ namespace Hitager
                     else if (j == 15)
                     {
                         /* Special procedure for protected block */
-                        int try_nr = 1;
-                        xmaMode = "0";
-
-                        while ((try_nr < 4) && (!xmaMode.Contains("FFFFFFE8")))
-                        {
-                            /* Try to enter XMA mode until key confirms */
-                            if (try_nr > 1) handleDebug("Repeat entering XMA: Try " + try_nr.ToString());
-                            xmaMode = portHandler.portWR("i0540");      // Enter XMA mode
-                            try_nr++;
-                        }
-
+                        Thread.Sleep(10);
+                        sendCmdUntilResponse("i0540", "FFFFFFE8", 10);
+                        Thread.Sleep(10);
                         received = ReadPage(i);
                     }
                     else
                     {
                         /* Normal Page */
+                        Thread.Sleep(10);
                         received = ReadPage(i);
                     }
                          
@@ -313,17 +313,6 @@ namespace Hitager
         {
             BMW_Vehicle_Data VehicleData = new BMW_Vehicle_Data(this);
             VehicleData.Show();
-        }
-
-        private void button_XMA_Cmd_Click(object sender, EventArgs e)
-        {
-            portHandler.portWR("o");
-            String xmaMode = portHandler.portWR("i0540");   // Enter XMA_Mode
-
-            portHandler.portWR("i0A"+ Textbox_XMA_CMD.Text);
-
-            portHandler.portWR("f");
-
         }
     }
 }

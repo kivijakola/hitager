@@ -71,13 +71,13 @@ namespace Hitager
 
             if (remoteDataBlock.Length == 64)
             {
-                this.textBox_RSK_Hi.Text = remoteDataBlock.Substring(5 * 8, 8);
-                this.textBox_RSK_Lo.Text = remoteDataBlock.Substring(4 * 8, 8);
+                this.maskedTextBox_RSK_HI.Text = remoteDataBlock.Substring((5 * 8) + 4, 4);
+                this.maskedTextBox_RSK_LO.Text = remoteDataBlock.Substring(4 * 8, 8);
             }
             else
             {
-                this.textBox_RSK_Hi.Text = "ERROR";
-                this.textBox_RSK_Lo.Text = "ERROR";
+                this.maskedTextBox_RSK_HI.Text = "ERROR";
+                this.maskedTextBox_RSK_LO.Text = "ERROR";
             }
 
 
@@ -92,12 +92,12 @@ namespace Hitager
             String resp = "0";
             byte Checksum8 = 0;
 
-            String[] KeyData = { textBox_RSK_Lo.Text , textBox_RSK_Hi.Text , textBox_Sync.Text ,
-                                 textBox_KeyNumber.Text , textBox_Conf.Text, "00000000" };
+            String[] KeyData = { maskedTextBox_RSK_LO.Text , maskedTextBox_RSK_HI.Text , maskedTextBox_Sync.Text ,
+                                 maskedTextBox_KeyNumber.Text , maskedTextBox_Conf.Text, "00000000" };
 
             /* User confirmation */
-            String message = "Writing Remote Data irreversibly locks the Hitag2 pages and remote data block. Key can not be" +
-                            "written again and may be unusable in case of wrong data applied. Continue anyway?";
+            String message = "This feature was never tested with a real key. Writing Remote Data irreversibly locks the Hitag2 pages " +
+                            "and remote data block. Key can not be written again and may be unusable in case of wrong data applied. Continue anyway?";
             String caption = "Warning";
             MessageBoxButtons buttons = MessageBoxButtons.OKCancel;
 
