@@ -66,6 +66,7 @@ namespace Hitager
             this.label2 = new System.Windows.Forms.Label();
             this.pulse0Num = new System.Windows.Forms.NumericUpDown();
             this.hysteresisCB = new System.Windows.Forms.CheckBox();
+            this.button_GainAutoAdjust = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pulse1Num)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pulse0Num)).BeginInit();
             this.SuspendLayout();
@@ -444,10 +445,21 @@ namespace Hitager
             this.hysteresisCB.UseVisualStyleBackColor = true;
             this.hysteresisCB.CheckedChanged += new System.EventHandler(this.hysteresisCB_CheckedChanged);
             // 
+            // button_GainAutoAdjust
+            // 
+            this.button_GainAutoAdjust.Location = new System.Drawing.Point(323, 237);
+            this.button_GainAutoAdjust.Name = "button_GainAutoAdjust";
+            this.button_GainAutoAdjust.Size = new System.Drawing.Size(103, 19);
+            this.button_GainAutoAdjust.TabIndex = 38;
+            this.button_GainAutoAdjust.Text = "Gain Autoadjust";
+            this.button_GainAutoAdjust.UseVisualStyleBackColor = true;
+            this.button_GainAutoAdjust.Click += new System.EventHandler(this.button_GainAutoAdjust_Click);
+            // 
             // SerialDebugger
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.button_GainAutoAdjust);
             this.Controls.Add(this.hysteresisCB);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.pulse0Num);
@@ -533,5 +545,6 @@ namespace Hitager
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.NumericUpDown pulse0Num;
         private System.Windows.Forms.CheckBox hysteresisCB;
+        private System.Windows.Forms.Button button_GainAutoAdjust;
     }
 }

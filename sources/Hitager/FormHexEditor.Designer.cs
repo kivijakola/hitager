@@ -114,7 +114,7 @@ namespace Hitager
             this.tabVvdiSuperChip = new System.Windows.Forms.TabPage();
             this.superChip = new Hitager.SuperChip();
             this.tabPageDebugger = new System.Windows.Forms.TabPage();
-            this.serialDebugger1 = new Hitager.SerialDebugger();
+            this.serialDebugger1 = new Hitager.SerialDebugger(this);
             this.portOutput = new System.Windows.Forms.TextBox();
             this.bitControl1 = new Hitager.BitControl();
             this.RecentFileHandler = new Hitager.RecentFileHandler(this.components);

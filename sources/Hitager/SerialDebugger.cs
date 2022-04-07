@@ -11,8 +11,11 @@ namespace Hitager
 {
     public partial class SerialDebugger : UserControl
     {
-        public SerialDebugger()
+        private FormHexEditor FormHexEditor;
+
+        public SerialDebugger(FormHexEditor FormHexEditor)
         {
+            this.FormHexEditor = FormHexEditor;
             InitializeComponent();
         }
 
@@ -252,6 +255,43 @@ namespace Hitager
             {
                 portHandler.portWR("h00");
             }
+        }
+
+        private void button_GainAutoAdjust_Click(object sender, EventArgs e)
+        {
+            /* Auto-adjust ABIC gain at first key access to optimize reading results */
+            string response;
+            int[] nrAnswersPerGain = new int[3];
+
+            for (int gain = 0; gain < 3; gain++)
+            {
+                string[] responses = new string[10];
+
+                portHandler.portWR("g0" + ((int)gain & 0x03));
+
+                /* Get result of card ID read 10 times */
+                for (int i = 0; i < 10; i++)
+                {
+                    portHandler.portWR("o");
+                    response = portHandler.portWR("i05C0");
+                    if (!responses.Contains(response))
+                    {
+                        int test = Array.FindIndex(responses, j => j == null);
+                        Array.Copy(new string[] { response}, 0, responses, test, 1);
+                    }
+                    portHandler.portWR("f");
+                }
+
+                nrAnswersPerGain[gain] = Array.FindIndex(responses, j => j == null);
+            }
+
+            /* Set AbicGain to value with the least number of different responses */
+            int idxSmallest = Array.IndexOf(nrAnswersPerGain, nrAnswersPerGain.Min());
+            portHandler.portWR("g0" + (idxSmallest & 0x03));
+            FormHexEditor.AbicGain = idxSmallest;
+
+            handleDebug("Best gain value is " + idxSmallest + " (" + nrAnswersPerGain[0] + " " + nrAnswersPerGain[1] + " " +
+                nrAnswersPerGain[2] + ")");
         }
     }
 }

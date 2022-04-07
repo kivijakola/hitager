@@ -118,7 +118,7 @@ namespace Hitager
         {
             int tries = 1;
             string response;
-
+            
             do
             {
                 if (tries > 1) handleDebug("Send cmd, try " + tries.ToString());
@@ -137,8 +137,7 @@ namespace Hitager
             write.Enabled = false;
             portHandler.portWR("o");
             String pages = "";
-            String response = "";
-
+  
             sendCmdUntilResponse("i0540", "FFFFFFE8", 10);
 
             for (int j = blockAddressStart; j <= blockAddressEnd; j++)
@@ -186,8 +185,6 @@ namespace Hitager
                         received = ReadPage(i);
                     }
                          
-
-
                     if (received.Length < 8)
                         received = received + "B1B1B1B1";
                     pages += received.Substring(0, 8);
