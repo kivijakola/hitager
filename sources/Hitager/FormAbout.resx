@@ -169,7 +169,7 @@
     <value>ucAbout1</value>
   </data>
   <data name="&gt;&gt;ucAbout1.Type" xml:space="preserve">
-    <value>Hitager.UCAbout, AESHitager, Version=1.5.0.27139, Culture=neutral, PublicKeyToken=01fb039ca8b8c445</value>
+    <value>Hitager.UCAbout, AESHitager, Version=1.0.1.40924, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;ucAbout1.Parent" xml:space="preserve">
     <value>$this</value>
@@ -199,6 +199,6 @@
     <value>FormAbout</value>
   </data>
   <data name="&gt;&gt;$this.Type" xml:space="preserve">
-    <value>AESHitager.Core.FormEx, AESHitager="", Version=1.1.0, Culture=neutral, PublicKeyToken=01fb039ca8b8c445</value>
+    <value>Hitager.Core.FormEx, AESHitager, Version=1.0.1.40924, Culture=neutral, PublicKeyToken=null</value>
   </data>
 </root>

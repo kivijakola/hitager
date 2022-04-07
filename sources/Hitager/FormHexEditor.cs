@@ -819,6 +819,13 @@ namespace Hitager
             portHandler.portWR("g0" + ((int)gainNum.Value & 0x03));
         }
 
+        public int AbicGain
+        {
+            set
+            {
+                gainNum.Value = value;
+            }
+        }
         private void phaseNum_ValueChanged(object sender, EventArgs e)
         {
             portHandler.portWR("a0" + ((int)phaseNum.Value & 0x0f).ToString("X1"));

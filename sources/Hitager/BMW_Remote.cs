@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Threading;
 
 namespace Hitager
 {
@@ -88,8 +89,6 @@ namespace Hitager
 
             bmwHt2.portHandler.portWR("o");
 
-            int try_nr = 1;
-            String resp = "0";
             byte Checksum8 = 0;
 
             String[] KeyData = { maskedTextBox_RSK_LO.Text , maskedTextBox_RSK_HI.Text , maskedTextBox_Sync.Text ,
@@ -104,36 +103,39 @@ namespace Hitager
             DialogResult result = MessageBox.Show(message, caption, buttons);
             if (result == System.Windows.Forms.DialogResult.Cancel)
             {
+                bmwHt2.portHandler.portWR("f");
+
                 // Closes the parent form.
                 return;
             }
 
             /* Enter XMA Mode */
-            do
+            if(bmwHt2.sendCmdUntilResponse("i0540", "FFFFFFE8", 4) == false)
             {
-                /* Try to enter XMA mode until key confirms */
-                if (try_nr > 1) bmwHt2.handleDebug("Repeat entering XMA: Try " + try_nr.ToString());
-                resp = bmwHt2.portHandler.portWR("i0540");      // Enter XMA mode
-                try_nr++;
-            } while ((try_nr < 4) && (!resp.Contains("FFFFFFE8")));
+                bmwHt2.handleDebug("Entering XMA Mode failed");
+                bmwHt2.portHandler.portWR("f");
+                return;
+            }
+
+            Thread.Sleep(10);
 
             /* Write 5 pages of data for remote */
             for (int i = 0; i < 6; i++)
             {
-                try_nr = 1;
-
                 if(i == 5)  KeyData[5] = "000000" + BitConverter.ToString(new byte[] { Checksum8 });     // Add CKS to last message
 
                 /* Sending "Write Remote" Command (10010+inv) */
-                do
+                if (bmwHt2.sendCmdUntilResponse("i0A9340", "9340", 4) == false)
                 {
-                    /* Send command until key confirms */
-                    if (try_nr > 1) bmwHt2.handleDebug("Repeat sending key write: Try " + try_nr.ToString());
-                    resp = bmwHt2.portHandler.portWR("i0A9340");     //(10010+inv)
-                    try_nr++;
-                } while ((try_nr < 4) && (!resp.Contains("9340")));
+                    bmwHt2.handleDebug("Wrong response");
+                    bmwHt2.portHandler.portWR("f");
+                    return;
+                }
+                Thread.Sleep(10);       // Wait until CMD executed (robustness improvement, eventually not necessary)
 
-                resp = bmwHt2.portHandler.portWR("i20" + KeyData[i].PadLeft(8,'0'));
+                bmwHt2.portHandler.portWR("i20" + KeyData[i].PadLeft(8,'0'));
+
+                Thread.Sleep(10);       // Wait until data is written (robustness improvement, eventually not necessary)
 
                 byte[] CksBuff = new byte[4];
                 Array.Copy(bmwHt2.ConvertHexStringToByteArray(KeyData[i]), CksBuff, bmwHt2.ConvertHexStringToByteArray(KeyData[i]).Length);
