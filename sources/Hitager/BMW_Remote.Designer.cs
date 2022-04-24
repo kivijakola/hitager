@@ -123,6 +123,7 @@ namespace Hitager
             this.maskedTextBox_KeyNumber.TabIndex = 31;
             this.maskedTextBox_KeyNumber.Text = "0000";
             this.maskedTextBox_KeyNumber.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.maskedTextBox_KeyNumber.TextMaskFormat = System.Windows.Forms.MaskFormat.ExcludePromptAndLiterals;
             // 
             // maskedTextBox_RSK_HI
             // 
@@ -134,6 +135,7 @@ namespace Hitager
             this.maskedTextBox_RSK_HI.TabIndex = 32;
             this.maskedTextBox_RSK_HI.Text = "0000";
             this.maskedTextBox_RSK_HI.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.maskedTextBox_RSK_HI.TextMaskFormat = System.Windows.Forms.MaskFormat.ExcludePromptAndLiterals;
             // 
             // maskedTextBox_RSK_LO
             // 
@@ -145,6 +147,7 @@ namespace Hitager
             this.maskedTextBox_RSK_LO.TabIndex = 33;
             this.maskedTextBox_RSK_LO.Text = "00000000";
             this.maskedTextBox_RSK_LO.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.maskedTextBox_RSK_LO.TextMaskFormat = System.Windows.Forms.MaskFormat.ExcludePromptAndLiterals;
             // 
             // maskedTextBox_Sync
             // 
@@ -156,6 +159,7 @@ namespace Hitager
             this.maskedTextBox_Sync.TabIndex = 34;
             this.maskedTextBox_Sync.Text = "00000000";
             this.maskedTextBox_Sync.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.maskedTextBox_Sync.TextMaskFormat = System.Windows.Forms.MaskFormat.ExcludePromptAndLiterals;
             // 
             // maskedTextBox_Conf
             // 
@@ -167,6 +171,7 @@ namespace Hitager
             this.maskedTextBox_Conf.TabIndex = 35;
             this.maskedTextBox_Conf.Text = "00000000";
             this.maskedTextBox_Conf.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.maskedTextBox_Conf.TextMaskFormat = System.Windows.Forms.MaskFormat.ExcludePromptAndLiterals;
             // 
             // BMW_Remote
             // 
