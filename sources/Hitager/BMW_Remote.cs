@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
+using System.IO;
 
 namespace Hitager
 {
@@ -15,10 +16,15 @@ namespace Hitager
     {
         private BmwHt2 bmwHt2;
 
+        private String[] bankID = { "0: N/A", "1: N/A", "2: N/A", "3: N/A", "4: N/A", "5: N/A", "6: N/A", "7: N/A", "8: N/A", "9: N/A" };
+
+        private byte[] casDump = new byte[4096];
+
         public BMW_Remote(BmwHt2 bmwHt2)
         {
             this.bmwHt2 = bmwHt2;
             InitializeComponent();
+            comboBox_bankSelect.DataSource = bankID;
         }
 
         private void Read_Remote_Click(object sender, EventArgs e)
@@ -74,6 +80,17 @@ namespace Hitager
             {
                 this.maskedTextBox_RSK_HI.Text = remoteDataBlock.Substring((5 * 8) + 4, 4);
                 this.maskedTextBox_RSK_LO.Text = remoteDataBlock.Substring(4 * 8, 8);
+                this.maskedTextBox_RemoteID.Text = remoteDataBlock.Substring((7 * 8), 4);
+
+                /* Address seems different between PCF7944 and China Key -> Select plausible value */
+                if (remoteDataBlock.Substring(0, 8) == "FFFFFFFF" || remoteDataBlock.Substring(0, 8) == "b1b1b1b1")
+                {
+                    this.maskedTextBox_Sync.Text = remoteDataBlock.Substring((6 * 8), 8);
+                }
+                else
+                {
+                    this.maskedTextBox_Sync.Text = remoteDataBlock.Substring(0, 8);
+                }
             }
             else
             {
@@ -92,7 +109,7 @@ namespace Hitager
             byte Checksum8 = 0;
 
             String[] KeyData = { maskedTextBox_RSK_LO.Text , maskedTextBox_RSK_HI.Text , maskedTextBox_Sync.Text ,
-                                 maskedTextBox_KeyNumber.Text , maskedTextBox_Conf.Text, "00000000" };
+                                 maskedTextBox_RemoteID.Text , maskedTextBox_Conf.Text, "00000000" };
 
             /* User confirmation */
             String message = "This feature was never tested with a real key. Writing Remote Data irreversibly locks the Hitag2 pages " +
@@ -133,7 +150,15 @@ namespace Hitager
                 }
                 Thread.Sleep(10);       // Wait until CMD executed (robustness improvement, eventually not necessary)
 
-                bmwHt2.portHandler.portWR("i20" + KeyData[i].PadLeft(8,'0'));
+                if(i != 3)
+                {
+                    bmwHt2.portHandler.portWR("i20" + KeyData[i].PadLeft(8, '0'));
+                }
+                else
+                {
+                    bmwHt2.portHandler.portWR("i20" + KeyData[i].PadRight(8, '0'));
+                }
+                
 
                 Thread.Sleep(10);       // Wait until data is written (robustness improvement, eventually not necessary)
 
@@ -149,6 +174,111 @@ namespace Hitager
             }
 
             bmwHt2.portHandler.portWR("f");
+        }
+
+        private void button_OpenCasDump_Click(object sender, EventArgs e)
+        {
+            String fileContent = string.Empty;
+            String filePath = string.Empty;
+            bool CasDumpPlausible = true;
+
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.InitialDirectory = "c:\\";
+                openFileDialog.Filter = "All files (*.*)|*.*|Binary files (*.bin)|*.bin";
+                openFileDialog.FilterIndex = 2;
+                openFileDialog.RestoreDirectory = true;
+
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    if(new FileInfo(openFileDialog.FileName).Length == 4096)
+                    {
+                        filePath = openFileDialog.FileName;
+                     
+                        var fileStream = openFileDialog.OpenFile();
+
+                        using (BinaryReader br = new BinaryReader(File.OpenRead(openFileDialog.FileName)))
+                        {
+                            casDump = br.ReadBytes(4096);
+                            br.Close();
+                        }
+
+                        /* ToDo: Add more plausiblity checks for the dump */
+                        for(int i=0x5; i < 0xF; i++)
+                        {
+                            CasDumpPlausible |= (casDump.GetValue(i) == new byte[]{ 0xFF});
+                        }
+
+
+                        if (CasDumpPlausible)
+                        {
+                            label_CasDumpStatus.ForeColor = Color.Green;
+                            label_CasDumpStatus.Text = "Dump Valid";
+                        }
+                        else
+                        {
+                            label_CasDumpStatus.ForeColor = Color.Red;
+                            label_CasDumpStatus.Text = "Dump Not Valid";
+                        }
+                        
+
+                        for (int i=0; i < 10; i++)
+                        {
+                            byte[] ID_bytearray = new byte[4];
+                            Array.Copy(casDump, (0xA8C + i*4), ID_bytearray, 0, 4);
+                            if (ID_bytearray.SequenceEqual(new byte[] { 0xFF, 0xFF, 0xFF, 0xFF }))
+                            {
+                                bankID[i] = i.ToString() + ": Empty";
+                            }
+                            else
+                            {
+                                bankID[i] = i.ToString() + ": " + BitConverter.ToString(ID_bytearray).Replace("-", "");
+                            }
+                                                        
+                        }
+
+                        comboBox_bankSelect.DataSource = null;
+                        comboBox_bankSelect.DataSource = bankID;
+
+
+
+                    }
+                    else
+                    {
+                        String message = "No valid CAS3 dump. Filesize must be 4096 byte!";
+                        String caption = "Warning";
+                        MessageBoxButtons buttons = MessageBoxButtons.OK;
+
+                        DialogResult result = MessageBox.Show(message, caption, buttons);
+
+                        label_CasDumpStatus.ForeColor = Color.Red;
+                        label_CasDumpStatus.Text = "Dump Not Valid";
+                    }
+
+                }
+            }
+        }
+
+        private void button_FetchRemoteData_Click(object sender, EventArgs e)
+        {
+            int BankNr = comboBox_bankSelect.SelectedIndex;
+            byte[] temp = new byte[4];
+
+            /* Remote secret key High */
+            Array.Copy(casDump, (0x848 + BankNr * 2), temp, 0, 2);
+            maskedTextBox_RSK_HI.Text = BitConverter.ToString(temp).Replace("-", "");
+            
+            /* Remote secret key Low */
+            Array.Copy(casDump, (0x860 + BankNr * 4), temp, 0, 4);
+            maskedTextBox_RSK_LO.Text = BitConverter.ToString(temp).Replace("-", "");
+
+            /* Remote ID */
+            Array.Copy(casDump, (0x830 + BankNr * 2), temp, 0, 2);
+            maskedTextBox_RemoteID.Text = BitConverter.ToString(temp).Replace("-", "");
+
+            /* Remote Sync */
+            Array.Copy(casDump, (0x8E4 + BankNr * 4), temp, 0, 4);
+            maskedTextBox_Sync.Text = BitConverter.ToString(temp).Replace("-", "");
         }
     }
 }
