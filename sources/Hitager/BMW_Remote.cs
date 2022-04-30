@@ -80,7 +80,7 @@ namespace Hitager
             {
                 this.maskedTextBox_RSK_HI.Text = remoteDataBlock.Substring((5 * 8) + 4, 4);
                 this.maskedTextBox_RSK_LO.Text = remoteDataBlock.Substring(4 * 8, 8);
-                this.maskedTextBox_KeyNumber.Text = remoteDataBlock.Substring((7 * 8), 4);
+                this.maskedTextBox_RemoteID.Text = remoteDataBlock.Substring((7 * 8), 4);
 
                 /* Address seems different between PCF7944 and China Key -> Select plausible value */
                 if (remoteDataBlock.Substring(0, 8) == "FFFFFFFF" || remoteDataBlock.Substring(0, 8) == "b1b1b1b1")
@@ -109,7 +109,7 @@ namespace Hitager
             byte Checksum8 = 0;
 
             String[] KeyData = { maskedTextBox_RSK_LO.Text , maskedTextBox_RSK_HI.Text , maskedTextBox_Sync.Text ,
-                                 maskedTextBox_KeyNumber.Text , maskedTextBox_Conf.Text, "00000000" };
+                                 maskedTextBox_RemoteID.Text , maskedTextBox_Conf.Text, "00000000" };
 
             /* User confirmation */
             String message = "This feature was never tested with a real key. Writing Remote Data irreversibly locks the Hitag2 pages " +
@@ -150,7 +150,15 @@ namespace Hitager
                 }
                 Thread.Sleep(10);       // Wait until CMD executed (robustness improvement, eventually not necessary)
 
-                bmwHt2.portHandler.portWR("i20" + KeyData[i].PadLeft(8,'0'));
+                if(i != 3)
+                {
+                    bmwHt2.portHandler.portWR("i20" + KeyData[i].PadLeft(8, '0'));
+                }
+                else
+                {
+                    bmwHt2.portHandler.portWR("i20" + KeyData[i].PadRight(8, '0'));
+                }
+                
 
                 Thread.Sleep(10);       // Wait until data is written (robustness improvement, eventually not necessary)
 
@@ -172,12 +180,12 @@ namespace Hitager
         {
             String fileContent = string.Empty;
             String filePath = string.Empty;
-
+            bool CasDumpPlausible = true;
 
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
                 openFileDialog.InitialDirectory = "c:\\";
-                openFileDialog.Filter = "Binary files (*.bin)|*.bin|All files (*.*)|*.*";
+                openFileDialog.Filter = "All files (*.*)|*.*|Binary files (*.bin)|*.bin";
                 openFileDialog.FilterIndex = 2;
                 openFileDialog.RestoreDirectory = true;
 
@@ -185,21 +193,34 @@ namespace Hitager
                 {
                     if(new FileInfo(openFileDialog.FileName).Length == 4096)
                     {
-                        //Get the path of specified file
                         filePath = openFileDialog.FileName;
-
-                        //Read the contents of the file into a stream
+                     
                         var fileStream = openFileDialog.OpenFile();
 
-                        using (BinaryReader br = new BinaryReader(File.OpenRead(openFileDialog.FileName))) //Sets a new integer to the BinaryReader
+                        using (BinaryReader br = new BinaryReader(File.OpenRead(openFileDialog.FileName)))
                         {
-                            //casDump = Encoding.UTF8.GetString(br.ReadBytes(4096)); //Reads as many bytes as it can
-                            casDump = br.ReadBytes(4096); //Reads as many bytes as it can
+                            casDump = br.ReadBytes(4096);
                             br.Close();
                         }
 
-                        /* Check the dump */
+                        /* ToDo: Add more plausiblity checks for the dump */
+                        for(int i=0x5; i < 0xF; i++)
+                        {
+                            CasDumpPlausible |= (casDump.GetValue(i) == new byte[]{ 0xFF});
+                        }
 
+
+                        if (CasDumpPlausible)
+                        {
+                            label_CasDumpStatus.ForeColor = Color.Green;
+                            label_CasDumpStatus.Text = "Dump Valid";
+                        }
+                        else
+                        {
+                            label_CasDumpStatus.ForeColor = Color.Red;
+                            label_CasDumpStatus.Text = "Dump Not Valid";
+                        }
+                        
 
                         for (int i=0; i < 10; i++)
                         {
@@ -229,6 +250,9 @@ namespace Hitager
                         MessageBoxButtons buttons = MessageBoxButtons.OK;
 
                         DialogResult result = MessageBox.Show(message, caption, buttons);
+
+                        label_CasDumpStatus.ForeColor = Color.Red;
+                        label_CasDumpStatus.Text = "Dump Not Valid";
                     }
 
                 }
@@ -247,6 +271,14 @@ namespace Hitager
             /* Remote secret key Low */
             Array.Copy(casDump, (0x860 + BankNr * 4), temp, 0, 4);
             maskedTextBox_RSK_LO.Text = BitConverter.ToString(temp).Replace("-", "");
+
+            /* Remote ID */
+            Array.Copy(casDump, (0x830 + BankNr * 2), temp, 0, 2);
+            maskedTextBox_RemoteID.Text = BitConverter.ToString(temp).Replace("-", "");
+
+            /* Remote Sync */
+            Array.Copy(casDump, (0x8E4 + BankNr * 4), temp, 0, 4);
+            maskedTextBox_Sync.Text = BitConverter.ToString(temp).Replace("-", "");
         }
     }
 }
