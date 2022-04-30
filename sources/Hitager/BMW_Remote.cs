@@ -80,6 +80,17 @@ namespace Hitager
             {
                 this.maskedTextBox_RSK_HI.Text = remoteDataBlock.Substring((5 * 8) + 4, 4);
                 this.maskedTextBox_RSK_LO.Text = remoteDataBlock.Substring(4 * 8, 8);
+                this.maskedTextBox_KeyNumber.Text = remoteDataBlock.Substring((7 * 8), 4);
+
+                /* Address seems different between PCF7944 and China Key -> Select plausible value */
+                if (remoteDataBlock.Substring(0, 8) == "FFFFFFFF" || remoteDataBlock.Substring(0, 8) == "b1b1b1b1")
+                {
+                    this.maskedTextBox_Sync.Text = remoteDataBlock.Substring((6 * 8), 8);
+                }
+                else
+                {
+                    this.maskedTextBox_Sync.Text = remoteDataBlock.Substring(0, 8);
+                }
             }
             else
             {
