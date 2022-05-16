@@ -18,6 +18,28 @@ namespace Hitager
 
         private String[] bankID = { "0: N/A", "1: N/A", "2: N/A", "3: N/A", "4: N/A", "5: N/A", "6: N/A", "7: N/A", "8: N/A", "9: N/A" };
 
+        public enum CasMasks : byte
+        {
+            L15Y = 0,
+            L01Y = 1,
+            INI = 3
+        }
+
+        CasMasks CasMaskDet = CasMasks.INI;
+
+        /* Definition of CAS3 memory layout */
+        public struct CasMemLayout
+        {
+            public UInt16 KeyID;
+            public UInt16 RemoteID;
+            public UInt16 RSK_Hi;
+            public UInt16 RSK_Lo;
+            public UInt16 Sync;
+            public String CasMaskString;
+        }
+
+        CasMemLayout[] Cas3 = new CasMemLayout[2];
+
         private byte[] casDump = new byte[4096];
 
         public BMW_Remote(BmwHt2 bmwHt2)
@@ -180,7 +202,7 @@ namespace Hitager
         {
             String fileContent = string.Empty;
             String filePath = string.Empty;
-            bool CasDumpPlausible = true;
+            bool[] CasDumpPlausible = { true, true };
 
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
@@ -188,6 +210,22 @@ namespace Hitager
                 openFileDialog.Filter = "All files (*.*)|*.*|Binary files (*.bin)|*.bin";
                 openFileDialog.FilterIndex = 2;
                 openFileDialog.RestoreDirectory = true;
+
+                /* Create database with key's addresses */
+                Cas3[0].CasMaskString = "0L15Y";
+                Cas3[0].KeyID = 0xA8C;
+                Cas3[0].RemoteID = 0x830;
+                Cas3[0].RSK_Hi = 0x848;
+                Cas3[0].RSK_Lo = 0x860;
+                Cas3[0].Sync = 0x8E4;
+
+                Cas3[1].CasMaskString = "0L01Y";
+                Cas3[1].KeyID = 0x28C;
+                Cas3[1].RemoteID = 0x30;
+                Cas3[1].RSK_Hi = 0x48;
+                Cas3[1].RSK_Lo = 0x60;
+                Cas3[1].Sync = 0x8C;
+
 
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
@@ -203,44 +241,66 @@ namespace Hitager
                             br.Close();
                         }
 
-                        /* ToDo: Add more plausiblity checks for the dump */
-                        for(int i=0x5; i < 0xF; i++)
+                        /* Check for which mem layout the checksum is correct */
+                        for (byte i=0; i< Cas3.Length; i++)
                         {
-                            CasDumpPlausible |= (casDump.GetValue(i) == new byte[]{ 0xFF});
+                            int cks8mod256 = 0;
+                            /* Calc checksum over transponder ID block */
+                            for (int j = Cas3[i].KeyID; j < (Cas3[i].KeyID + 4 * 10); j++)
+                            {
+                                cks8mod256 += (byte)casDump.GetValue(j);
+                                cks8mod256 %= 256;
+                            }
+
+                            CasDumpPlausible[i] &= (cks8mod256 == (byte)casDump.GetValue((Cas3[i].KeyID + 4 * 10 )));
                         }
 
+                        if (CasDumpPlausible[0])
+                        {
+                            CasMaskDet = CasMasks.L15Y;
+                        }
+                        else if (CasDumpPlausible[1])
+                        {
+                            CasMaskDet = CasMasks.L01Y;
+                        }
+                        else
+                        {
+                            CasMaskDet = CasMasks.INI;
+                        }
 
-                        if (CasDumpPlausible)
+                        if (CasMaskDet != CasMasks.INI)
                         {
                             label_CasDumpStatus.ForeColor = Color.Green;
-                            label_CasDumpStatus.Text = "Dump Valid";
+                            label_CasDumpStatus.Text = "Dump valid";
+                            label_CasMask.Text = Cas3[(int)CasMaskDet].CasMaskString;
+                            label_CasMask.ForeColor = Color.Green;
+
+                            /* Extract Transponder IDs and create elements for dropdown list */
+                            for (int i = 0; i < 10; i++)
+                            {
+                                byte[] ID_bytearray = new byte[4];
+                                Array.Copy(casDump, (Cas3[(int)CasMaskDet].KeyID + i * 4), ID_bytearray, 0, 4);
+                                if (ID_bytearray.SequenceEqual(new byte[] { 0xFF, 0xFF, 0xFF, 0xFF }))
+                                {
+                                    bankID[i] = i.ToString() + ": Empty";
+                                }
+                                else
+                                {
+                                    bankID[i] = i.ToString() + ": " + BitConverter.ToString(ID_bytearray).Replace("-", "");
+                                }
+
+                            }
+
+                            comboBox_bankSelect.DataSource = null;
+                            comboBox_bankSelect.DataSource = bankID;
                         }
                         else
                         {
                             label_CasDumpStatus.ForeColor = Color.Red;
                             label_CasDumpStatus.Text = "Dump Not Valid";
+                            label_CasMask.ForeColor = Color.Black;
+                            label_CasMask.Text = "N/A";
                         }
-                        
-
-                        for (int i=0; i < 10; i++)
-                        {
-                            byte[] ID_bytearray = new byte[4];
-                            Array.Copy(casDump, (0xA8C + i*4), ID_bytearray, 0, 4);
-                            if (ID_bytearray.SequenceEqual(new byte[] { 0xFF, 0xFF, 0xFF, 0xFF }))
-                            {
-                                bankID[i] = i.ToString() + ": Empty";
-                            }
-                            else
-                            {
-                                bankID[i] = i.ToString() + ": " + BitConverter.ToString(ID_bytearray).Replace("-", "");
-                            }
-                                                        
-                        }
-
-                        comboBox_bankSelect.DataSource = null;
-                        comboBox_bankSelect.DataSource = bankID;
-
-
 
                     }
                     else
@@ -249,12 +309,13 @@ namespace Hitager
                         String caption = "Warning";
                         MessageBoxButtons buttons = MessageBoxButtons.OK;
 
-                        DialogResult result = MessageBox.Show(message, caption, buttons);
+                        MessageBox.Show(message, caption, buttons);
 
                         label_CasDumpStatus.ForeColor = Color.Red;
                         label_CasDumpStatus.Text = "Dump Not Valid";
+                        label_CasMask.ForeColor = Color.Black;
+                        label_CasMask.Text = "N/A";
                     }
-
                 }
             }
         }
@@ -264,21 +325,33 @@ namespace Hitager
             int BankNr = comboBox_bankSelect.SelectedIndex;
             byte[] temp = new byte[4];
 
-            /* Remote secret key High */
-            Array.Copy(casDump, (0x848 + BankNr * 2), temp, 0, 2);
-            maskedTextBox_RSK_HI.Text = BitConverter.ToString(temp).Replace("-", "");
+            if(CasMaskDet == CasMasks.INI)
+            {
+                String message = "No valid CAS3 detected. Please load a valid dump first!";
+                String caption = "Warning";
+                MessageBoxButtons buttons = MessageBoxButtons.OK;
+
+                MessageBox.Show(message, caption, buttons);
+            }
+            else
+            {
+                /* Remote secret key High */
+                Array.Copy(casDump, (Cas3[(int)CasMaskDet].RSK_Hi + BankNr * 2), temp, 0, 2);
+                maskedTextBox_RSK_HI.Text = BitConverter.ToString(temp).Replace("-", "");
+
+                /* Remote secret key Low */
+                Array.Copy(casDump, (Cas3[(int)CasMaskDet].RSK_Lo + BankNr * 4), temp, 0, 4);
+                maskedTextBox_RSK_LO.Text = BitConverter.ToString(temp).Replace("-", "");
+
+                /* Remote ID */
+                Array.Copy(casDump, (Cas3[(int)CasMaskDet].RemoteID + BankNr * 2), temp, 0, 2);
+                maskedTextBox_RemoteID.Text = BitConverter.ToString(temp).Replace("-", "");
+
+                /* Remote Sync */
+                Array.Copy(casDump, (Cas3[(int)CasMaskDet].Sync + BankNr * 4), temp, 0, 4);
+                maskedTextBox_Sync.Text = BitConverter.ToString(temp).Replace("-", "");
+            }
             
-            /* Remote secret key Low */
-            Array.Copy(casDump, (0x860 + BankNr * 4), temp, 0, 4);
-            maskedTextBox_RSK_LO.Text = BitConverter.ToString(temp).Replace("-", "");
-
-            /* Remote ID */
-            Array.Copy(casDump, (0x830 + BankNr * 2), temp, 0, 2);
-            maskedTextBox_RemoteID.Text = BitConverter.ToString(temp).Replace("-", "");
-
-            /* Remote Sync */
-            Array.Copy(casDump, (0x8E4 + BankNr * 4), temp, 0, 4);
-            maskedTextBox_Sync.Text = BitConverter.ToString(temp).Replace("-", "");
         }
     }
 }
