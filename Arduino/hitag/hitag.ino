@@ -15,7 +15,7 @@ const int dout_pin = 7;
 const int din_pin = 2; //Use with Arduino Nano
 //Note: din_pin must have external interrupt feature!
 
-const int hitagerVersion = 2;
+const char hitagerVersion[] = {"210"};  // Major Version, Minor Version, Fix
 
 
 #define START_TIMER TCCR1B |= (1 << CS10)
@@ -30,18 +30,66 @@ volatile int isrCnt=0;
 volatile int capturedone=0;
 unsigned long starttime=0;
 int rfoffset = 2;
-int gain = 1;
+unsigned char AbicPhaseMeas;
 int debug = 0;
 int decodemode = 0;
 int delay_1 = 20;
 int delay_0 = 14;
 int delay_p = 5;
-int hysteresis =1;
+
+/*ABIC Settings */
+static union{
+  struct {
+    unsigned char filter_l:1;
+    unsigned char filter_h:1;
+    unsigned char gain:2;
+    unsigned char page_nr:2;
+    unsigned char SetPageCmd:2;
+
+  };
+  unsigned char byteval;
+}AbicConf_Page0;
+
+static union{
+  struct {
+    unsigned char txdis:1;
+    unsigned char hysteresis:1;
+    unsigned char pd:1;
+    unsigned char pd_mode:1;
+    unsigned char page_nr:2;    
+    unsigned char SetPageCmd:2;
+  };
+  unsigned char byteval;
+}AbicConf_Page1;
+
+static union{
+  struct {
+    unsigned char freeze:2;
+    unsigned char acqamp:1;
+    unsigned char threset:1;
+    unsigned char page_nr:2;    
+    unsigned char SetPageCmd:2;
+  };
+  unsigned char byteval;
+}AbicConf_Page2;
+
 //volatile unsigned long vvdiDelay = 7768;
 volatile unsigned long vvdiDelay = 6982;
 
+
 void setup()
 {
+  AbicConf_Page0.SetPageCmd = 1;
+  AbicConf_Page1.SetPageCmd = 1;
+  AbicConf_Page2.SetPageCmd = 1;
+  
+  AbicConf_Page0.gain = 1;
+  AbicConf_Page0.filter_h = 1;
+  AbicConf_Page1.hysteresis = 1;
+  AbicConf_Page1.page_nr = 1;
+  AbicConf_Page2.page_nr = 2;
+  
+  
   TIMSK0=0;
   pinMode(SCK_pin, OUTPUT);
   pinMode(dout_pin, OUTPUT);
@@ -54,7 +102,8 @@ void setup()
 
 
   writePCF7991Reg(0x40,8);//wake up
-  writePCF7991Reg(0x50,8);//rf on
+  AbicConf_Page1.txdis = 0;
+  writePCF7991Reg(AbicConf_Page1.byteval,8);//rf on
   byte readval = 0;
   for(int i = 2;i<9;i++)
   {
@@ -129,7 +178,8 @@ void loop()
 
     case 'f':
     {
-      writePCF7991Reg(0x51,8);//rf off
+      AbicConf_Page1.txdis = 1;
+      writePCF7991Reg(AbicConf_Page1.byteval, 8);//rf off
       Serial.print("RFOFF\n");
       break;
     }
@@ -138,9 +188,9 @@ void loop()
     {
       Serial.print("Gain adjust\n");
       
-      gain = serialToByte() & 0x3;
+      AbicConf_Page0.gain = serialToByte() & 0x3;
       Serial.print("RESP:\n");
-      Serial.print(gain,HEX);
+      Serial.print(AbicConf_Page0.gain,HEX);
       Serial.print("\nEOF\n");
       
       break;
@@ -149,9 +199,9 @@ void loop()
     {
       Serial.print("Hysteresis\n");
       
-      hysteresis = serialToByte() & 0x1;
+      AbicConf_Page1.hysteresis = serialToByte() & 0x1;
       Serial.print("RESP:\n");
-      Serial.print(hysteresis,HEX);
+      Serial.print(AbicConf_Page1.hysteresis,HEX);
       Serial.print("\nEOF\n");
       
       break;
@@ -179,10 +229,36 @@ void loop()
     
     case 'o':
     {
-      writePCF7991Reg(0x40 | (gain<<2) | 0x02, 8);
-      writePCF7991Reg(0x50 | (hysteresis &0x1) <<1,8);//rf on
+      AbicConf_Page1.txdis = 0;
+      writePCF7991Reg(AbicConf_Page0.byteval, 8);
+      writePCF7991Reg(AbicConf_Page2.byteval, 8); 
+      writePCF7991Reg(AbicConf_Page1.byteval ,8);      //rf on
+      
       adapt(rfoffset);
       Serial.print("RFON\n");
+      break;
+    }
+
+    /* Read config Page data from PCF7991 */
+    case 'p':
+    {
+      unsigned char PageNr = Serial.read();
+      if(PageNr > '3' || PageNr < '0')
+      {
+        Serial.print("Page Nr. not within permitted range\n");
+        Serial.print("ERROR\n");
+      }
+      else
+      {
+        Serial.print("Read ABIC config Page");
+        Serial.write(PageNr);
+        Serial.print(":\n");
+        PageNr -= '0'; //String to hex conversion
+        byte PageData = readPCF7991Reg(0b00000100 | PageNr);  //"Read Page cmd + 2 bit Page Nr.
+        Serial.print("RESP:");
+        Serial.print(PageData,HEX);
+        Serial.print("\nEOF\n");
+      }      
       break;
     }
     
@@ -190,6 +266,10 @@ void loop()
     {
       Serial.print("Super chip init\n");
       writePCF7991Reg(0x50 | (hysteresis &0x1) <<1,8);//rf on
+      // ToDo: Check if line above can be replaced with more consistent approach below    
+      //AbicConf_Page1.txdis = 0;
+      //writePCF7991Reg(AbicConf_Page1.byteval,8);//rf on
+      
       _delay_us(350);
       _delay_us(2500);  
       superInit(); 
@@ -207,8 +287,16 @@ void loop()
         cmd[i] = serialToByte();
       }
       writePCF7991Reg(0x51,8);//rf off
+      // ToDo: Check if line above can be replaced with more consistent approach below 
+      //AbicConf_Page1.txdis = 1;
+      //writePCF7991Reg(AbicConf_Page1.byteval,8);//rf off
+      
       _delay_us(1000);
       writePCF7991Reg(0x50 | (hysteresis &0x1) <<1,8);//rf on
+      // ToDo: Check if line above can be replaced with more consistent approach below 
+      //AbicConf_Page1.txdis = 0;
+      //writePCF7991Reg(AbicConf_Page1.byteval,8);//rf on
+      
       _delay_us(350);
         
       digitalWrite(SCK_pin, LOW);
@@ -253,6 +341,30 @@ void loop()
       processManchester();
       
       Serial.print("\nEOF\n");
+      break;
+    }
+
+    /* Set configuration page data on PCF7991 */
+    case 's':
+    {
+      unsigned char PageData = (Serial.read() & 0b00111111);
+      
+      Serial.print("Write ABIC Page");
+      Serial.write('0'+((PageData>>4) & 0b00000011));
+      Serial.print(" 0x");
+      Serial.print((PageData & 0b00001111),HEX);
+      Serial.print("\n");
+
+      /* Copy received target config to local config */
+      switch(PageData & 0b00110000){
+        case 0:         AbicConf_Page0.byteval = ((PageData & 0b00111111) | 0b01000000); break;
+        case 0b00010000:AbicConf_Page1.byteval = ((PageData & 0b00111111) | 0b01000000); break;
+        case 0b00100000:AbicConf_Page2.byteval = ((PageData & 0b00111111) | 0b01000000); break;  
+      }
+      
+      writePCF7991Reg(PageData, 8);
+      Serial.print("EOF\n");
+      break;
     }
     
     case 't':
@@ -265,7 +377,7 @@ void loop()
     case 'v':
     {
       Serial.print("Hitager version:");
-      Serial.print(hitagerVersion,HEX);
+      Serial.print(hitagerVersion);
       Serial.print("\nEOF\n");
       break;
     }
