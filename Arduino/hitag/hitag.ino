@@ -9,6 +9,13 @@
 
 //#define F_CPU 16000000UL
 
+/* 4MHz clock output for PCF7991 ABIC */
+#if defined(__AVR_ATmega328P__)   // Setting for Arduino Nano and Pro Mini
+const int CLKOUT = 3;
+#elif(__AVR_ATmega2560__)   // Setting for Arduino Nano and Pro Mini
+const int CLKOUT = 9;
+#endif
+
 const int SCK_pin = 6;
 const int dout_pin = 7;
 //const int din_pin = 21; // Arduino Mega2560 original value 21 Mega2560 can also use 2 
@@ -91,9 +98,19 @@ void setup()
   
   
   TIMSK0=0;
+  
+  /* Configure external clock output for PCF7991 ABIC */
+  pinMode(CLKOUT, OUTPUT); 
+  TCCR2A = 0x23;
+  TCCR2B = 0x09;
+  OCR2A = 3;
+  OCR2B = 1;
+
+  /* Pin configuration*/
   pinMode(SCK_pin, OUTPUT);
   pinMode(dout_pin, OUTPUT);
   pinMode(din_pin, INPUT);
+  
   digitalWrite(SCK_pin, HIGH);
   digitalWrite(dout_pin, HIGH);
   digitalWrite(din_pin, HIGH); 
