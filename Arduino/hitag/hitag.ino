@@ -43,6 +43,7 @@ int decodemode = 0;
 int delay_1 = 20;
 int delay_0 = 14;
 int delay_p = 5;
+int hysteresis =1;
 
 /*ABIC Settings */
 static union{
@@ -206,6 +207,7 @@ void loop()
       Serial.print("Gain adjust\n");
       
       AbicConf_Page0.gain = serialToByte() & 0x3;
+      writePCF7991Reg(AbicConf_Page0.byteval, 8);
       Serial.print("RESP:\n");
       Serial.print(AbicConf_Page0.gain,HEX);
       Serial.print("\nEOF\n");
@@ -364,6 +366,7 @@ void loop()
     /* Set configuration page data on PCF7991 */
     case 's':
     {
+      while(!Serial.available()){};   //Wait until byte available
       unsigned char PageData = (Serial.read() & 0b00111111);
       
       Serial.print("Write ABIC Page");
@@ -379,7 +382,7 @@ void loop()
         case 0b00100000:AbicConf_Page2.byteval = ((PageData & 0b00111111) | 0b01000000); break;  
       }
       
-      writePCF7991Reg(PageData, 8);
+      writePCF7991Reg(PageData | 0b01000000, 8);
       Serial.print("EOF\n");
       break;
     }
@@ -510,12 +513,12 @@ void tester()
   START_TIMER;
   attachInterrupt(digitalPinToInterrupt(din_pin) , pin_ISR, CHANGE );
 
-  byte target= readPCF7991Reg(0x08);
+  byte phase= readPCF7991Reg(0x08);
   
   
   STOP_TIMER;
-  Serial.print("adapt target:");
-  Serial.println(target,HEX);
+  Serial.print("Measured phase:");
+  Serial.println(phase,HEX);
   Serial.print("ISRcnt:");
   Serial.println(isrCnt,HEX);
 }
@@ -531,13 +534,13 @@ byte readPCF7991Reg(byte addr)
 
 void adapt(int offset)
 {
-  byte target= readPCF7991Reg(0x08);
-  Serial.print("adapt target:");
-  Serial.println(target,HEX);
-  byte samplingT = (1<<7)|(0x3f&(2*target+offset));
+  byte phase= readPCF7991Reg(0x08);  //Read Phase
+  Serial.print("Measured phase:");
+  Serial.println(phase,HEX);
+  byte samplingT = (0x3f&(2*phase+offset));
   Serial.print("adapt samplingT:");
-  Serial.println(samplingT,HEX);
-  byte readval = readPCF7991Reg(samplingT);
+  Serial.println(samplingT,HEX); 
+  byte readval = readPCF7991Reg((1<<7)| samplingT); // Set Sampling Time + Cmd
   Serial.print("adapt readval:");
   Serial.println(readval,HEX);
 
