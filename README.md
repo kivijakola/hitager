@@ -1,11 +1,13 @@
 # hitager
 This open source project provides a GUI based Windows application for programming and reading automotive 125kHz RFID key transponders commonly used in car keys. It uses an Arduino (software also provided in this project) as interface to a PCF7991 base station IC.
+Additional infos can be found at the homepage of the project initiator's [website](https://kivijakola.fi/projektit/2021/01/27/hitag-open-source-tool/).
 
 ## Main Features:
 - Supported Protocols:
   - Hitag2, Hitag2+EE, Hitag2 Extended, Hitag2 BMW Extention
   - Hitag3
   - Hitag AES
+  - Hitag Pro
 - Special Devices:
   - VVDI Super Chip
   - BMW Key (e.g. PCF7944, PCF7945, PCF7953)
@@ -33,7 +35,7 @@ AESHitager PC <-------> Arduino <-------> PCF7991 IC <- - - - -> Key Transponder
    It is possible to use any available PCB containing a PCF7991 base station IC (ABIC). The cheapest solution seems to be IPROG RFID Adapter (available for ~ 15$)
    
    | Arduino Pin Nr | ABIC Pin Nr. | ABIC Pin Name | IPROG D-SUB PIN |
-   | -------------- | ------------ | ------------- | --------------- |
+   | :------------: | :----------: | :-----------: | :-------------: |
    |        D2      |      10      |       DOUT    |        11       |
    |        D7      |       9      |       DIN     |        13       |
    |        D6      |       8      |       CLK     |        12       |
@@ -41,17 +43,20 @@ AESHitager PC <-------> Arduino <-------> PCF7991 IC <- - - - -> Key Transponder
    | GND (optional) |  (see Hint)  |   (see Hint)  |        39       |
    |   VCC / +5V    |      -       |        -      |        43       |
    
+   <img src="/documentation/PCF7991_Footprint.JPG" width=30% height=30%>
    
    **Hint 1:**  
    Connecting D3 is only required if the ABIC is not supplied with clock source (e.g. Crystal Oscillator) on the PCB. In this case, Arduino's clock output can be used.  
-   **Hint 1:**  
+   **Hint 2:**  
    Connecting GND is only required if not connected via USB. In this case connect Arduino GND to PCB GND (not directly at ABIC GND pin)
    
-    - Hitag2 v3.1, ZedBull Mini (and others boards with Crystal Oscillator and containing a µC):  
+   **Variants:**
+    - **Hitag2 v3.1, ZedBull Mini** (and others boards with on-board crystal oscillator and µC):  
       - Connect Arduino according to table
       - Do not connect D3, as clock source is already present at the PCB
       - In order to stop the µC interfering with the ABIC, it must be held in Reset. This can be done by connecting µC's reset pin to GND
       - Connect the tool via USB in order to power it (wiring GND not necessary as it is provided by USB port)
-    - IPROG RFID Adapter
+    - **IPROG RFID Adapter**
       - The adapter can be used without any modification on the PCB
       - Connect with arduino according to table column "IPROG  D-Sub Pin"
+      <img src="/documentation/D_SUB_44_IPROG_Connector.JPG" width=50% height=50%>
