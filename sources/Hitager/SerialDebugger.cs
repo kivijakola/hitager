@@ -11,11 +11,10 @@ namespace Hitager
 {
     public partial class SerialDebugger : UserControl
     {
-        private FormHexEditor FormHexEditor;
+        public FormHexEditor FormHexEditor { get; set; }
 
-        public SerialDebugger(FormHexEditor FormHexEditor)
+        public SerialDebugger()
         {
-            this.FormHexEditor = FormHexEditor;
             InitializeComponent();
         }
 
@@ -230,24 +229,10 @@ namespace Hitager
             portHandler.portWR("x" + ((int)pulse1Num.Value & 0xff).ToString("X2"));
         }
 
-        private void label2_Click(object sender, EventArgs e)
+
+        private void checkBox_AbicHysteresis_CheckedChanged(object sender, EventArgs e)
         {
-
-        }
-
-        private void label3_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void hysteresisCB_CheckedChanged(object sender, EventArgs e)
-        {
-            if (hysteresisCB.Checked)
+            if (checkBox_AbicHysteresis.Checked)
             {
                 portHandler.portWR("h01");
             }
@@ -292,6 +277,47 @@ namespace Hitager
 
             handleDebug("Best gain value is " + idxSmallest + " (" + nrAnswersPerGain[0] + " " + nrAnswersPerGain[1] + " " +
                 nrAnswersPerGain[2] + ")");
+        }
+
+        private void button_AbicSendConf_Click(object sender, EventArgs e)
+        {
+            /* PCF7991 config 
+             *      Bit3    Bit2    Bit1        Bit0
+             * Pg0: Gain_1  Gain_0  Filter_H    FilterL
+             * Pg1: PD_mode PD      Hysteresis  TXDIS
+             * Pg2: Threset ACQAMP  Freeze_1    Freeze_0
+             */
+            
+            byte AbicPageData = (byte)((FormHexEditor.AbicGain << 2) | (Convert.ToByte(checkBox_FilterH.Checked) << 1) | 
+                                Convert.ToByte(checkBox_FilterL.Checked)); 
+            portHandler.portWR("s" + Encoding.ASCII.GetString(new byte[] { AbicPageData }));
+
+            String response = portHandler.portWR("p1"); // Read page to get TXDIS bit, which must not be changed by this operation
+            AbicPageData =  (byte)((0x10 | Convert.ToByte(checkBox_AbicHysteresis.Checked) << 1) | ((byte)response.ElementAt(0) & 1));
+
+            portHandler.portWR("s" + Encoding.ASCII.GetString(new byte[] { AbicPageData }));
+
+            AbicPageData = (byte)(((0x20 | Convert.ToByte(checkBox_Threset.Checked) << 3) | (Convert.ToByte(checkBox_ACQAMP.Checked) << 2) |
+                                Convert.ToByte(checkBox_Freeze0.Checked) << 1 | Convert.ToByte(checkBox_Freeze0.Checked)));
+        }
+
+        private void button_AbicGetConf_Click(object sender, EventArgs e)
+        {
+            String response = portHandler.portWR("p0"); // Request reading Config Page 0 from PCF7991 (ABIC)
+
+            checkBox_FilterL.Checked = ((byte)response.ElementAt(1) & 1) == 1;
+            checkBox_FilterH.Checked = (((byte)response.ElementAt(1)) & 2) == 2;
+            FormHexEditor.AbicGain = ((byte)response.ElementAt(1) >> 2) & 3;
+
+            response = portHandler.portWR("p1");
+            checkBox_AbicHysteresis.Checked = ((byte)response.ElementAt(1) & 2) == 2;
+
+            response = portHandler.portWR("p2");
+            checkBox_Threset.Checked = ((byte)response.ElementAt(1) & 8) == 8;
+            checkBox_ACQAMP.Checked = ((byte)response.ElementAt(1) & 4) == 4;
+            checkBox_Freeze1.Checked = ((byte)response.ElementAt(1) & 2) == 2;
+            checkBox_Freeze0.Checked = ((byte)response.ElementAt(1) & 1) == 1;
+
         }
     }
 }

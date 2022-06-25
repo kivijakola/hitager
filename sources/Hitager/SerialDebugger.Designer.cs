@@ -65,10 +65,20 @@ namespace Hitager
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.pulse0Num = new System.Windows.Forms.NumericUpDown();
-            this.hysteresisCB = new System.Windows.Forms.CheckBox();
+            this.checkBox_AbicHysteresis = new System.Windows.Forms.CheckBox();
             this.button_GainAutoAdjust = new System.Windows.Forms.Button();
+            this.groupBox_AbicConfig = new System.Windows.Forms.GroupBox();
+            this.button_AbicGetConf = new System.Windows.Forms.Button();
+            this.button_AbicSendConf = new System.Windows.Forms.Button();
+            this.checkBox_FilterL = new System.Windows.Forms.CheckBox();
+            this.checkBox_FilterH = new System.Windows.Forms.CheckBox();
+            this.checkBox_ACQAMP = new System.Windows.Forms.CheckBox();
+            this.checkBox_Freeze1 = new System.Windows.Forms.CheckBox();
+            this.checkBox_Freeze0 = new System.Windows.Forms.CheckBox();
+            this.checkBox_Threset = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.pulse1Num)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pulse0Num)).BeginInit();
+            this.groupBox_AbicConfig.SuspendLayout();
             this.SuspendLayout();
             // 
             // bits1
@@ -404,7 +414,6 @@ namespace Hitager
             this.label1.TabIndex = 34;
             this.label1.Text = "Pulse 1 Width:";
             this.label1.Visible = false;
-            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // label2
             // 
@@ -415,7 +424,6 @@ namespace Hitager
             this.label2.TabIndex = 36;
             this.label2.Text = "Pulse 0 Width:";
             this.label2.Visible = false;
-            this.label2.Click += new System.EventHandler(this.label2_Click);
             // 
             // pulse0Num
             // 
@@ -431,23 +439,23 @@ namespace Hitager
             this.pulse0Num.Visible = false;
             this.pulse0Num.ValueChanged += new System.EventHandler(this.pulse0Num_ValueChanged);
             // 
-            // hysteresisCB
+            // checkBox_AbicHysteresis
             // 
-            this.hysteresisCB.AutoSize = true;
-            this.hysteresisCB.Checked = true;
-            this.hysteresisCB.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.hysteresisCB.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.hysteresisCB.Location = new System.Drawing.Point(323, 204);
-            this.hysteresisCB.Name = "hysteresisCB";
-            this.hysteresisCB.Size = new System.Drawing.Size(101, 17);
-            this.hysteresisCB.TabIndex = 37;
-            this.hysteresisCB.Text = "ABIC Hysteresis";
-            this.hysteresisCB.UseVisualStyleBackColor = true;
-            this.hysteresisCB.CheckedChanged += new System.EventHandler(this.hysteresisCB_CheckedChanged);
+            this.checkBox_AbicHysteresis.AutoSize = true;
+            this.checkBox_AbicHysteresis.Checked = true;
+            this.checkBox_AbicHysteresis.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox_AbicHysteresis.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.checkBox_AbicHysteresis.Location = new System.Drawing.Point(6, 39);
+            this.checkBox_AbicHysteresis.Name = "checkBox_AbicHysteresis";
+            this.checkBox_AbicHysteresis.Size = new System.Drawing.Size(74, 17);
+            this.checkBox_AbicHysteresis.TabIndex = 37;
+            this.checkBox_AbicHysteresis.Text = "Hysteresis";
+            this.checkBox_AbicHysteresis.UseVisualStyleBackColor = true;
+            this.checkBox_AbicHysteresis.CheckedChanged += new System.EventHandler(this.checkBox_AbicHysteresis_CheckedChanged);
             // 
             // button_GainAutoAdjust
             // 
-            this.button_GainAutoAdjust.Location = new System.Drawing.Point(323, 237);
+            this.button_GainAutoAdjust.Location = new System.Drawing.Point(323, 188);
             this.button_GainAutoAdjust.Name = "button_GainAutoAdjust";
             this.button_GainAutoAdjust.Size = new System.Drawing.Size(103, 19);
             this.button_GainAutoAdjust.TabIndex = 38;
@@ -455,12 +463,122 @@ namespace Hitager
             this.button_GainAutoAdjust.UseVisualStyleBackColor = true;
             this.button_GainAutoAdjust.Click += new System.EventHandler(this.button_GainAutoAdjust_Click);
             // 
+            // groupBox_AbicConfig
+            // 
+            this.groupBox_AbicConfig.Controls.Add(this.checkBox_Threset);
+            this.groupBox_AbicConfig.Controls.Add(this.checkBox_Freeze0);
+            this.groupBox_AbicConfig.Controls.Add(this.checkBox_Freeze1);
+            this.groupBox_AbicConfig.Controls.Add(this.checkBox_ACQAMP);
+            this.groupBox_AbicConfig.Controls.Add(this.button_AbicGetConf);
+            this.groupBox_AbicConfig.Controls.Add(this.button_AbicSendConf);
+            this.groupBox_AbicConfig.Controls.Add(this.checkBox_FilterL);
+            this.groupBox_AbicConfig.Controls.Add(this.checkBox_FilterH);
+            this.groupBox_AbicConfig.Controls.Add(this.checkBox_AbicHysteresis);
+            this.groupBox_AbicConfig.Location = new System.Drawing.Point(454, 8);
+            this.groupBox_AbicConfig.Name = "groupBox_AbicConfig";
+            this.groupBox_AbicConfig.Size = new System.Drawing.Size(150, 140);
+            this.groupBox_AbicConfig.TabIndex = 39;
+            this.groupBox_AbicConfig.TabStop = false;
+            this.groupBox_AbicConfig.Text = "ABIC Config";
+            // 
+            // button_AbicGetConf
+            // 
+            this.button_AbicGetConf.Location = new System.Drawing.Point(77, 114);
+            this.button_AbicGetConf.Name = "button_AbicGetConf";
+            this.button_AbicGetConf.Size = new System.Drawing.Size(56, 20);
+            this.button_AbicGetConf.TabIndex = 45;
+            this.button_AbicGetConf.Text = "Get";
+            this.button_AbicGetConf.UseVisualStyleBackColor = true;
+            this.button_AbicGetConf.Click += new System.EventHandler(this.button_AbicGetConf_Click);
+            // 
+            // button_AbicSendConf
+            // 
+            this.button_AbicSendConf.Location = new System.Drawing.Point(6, 114);
+            this.button_AbicSendConf.Name = "button_AbicSendConf";
+            this.button_AbicSendConf.Size = new System.Drawing.Size(59, 20);
+            this.button_AbicSendConf.TabIndex = 40;
+            this.button_AbicSendConf.Text = "Set";
+            this.button_AbicSendConf.UseVisualStyleBackColor = true;
+            this.button_AbicSendConf.Click += new System.EventHandler(this.button_AbicSendConf_Click);
+            // 
+            // checkBox_FilterL
+            // 
+            this.checkBox_FilterL.AutoSize = true;
+            this.checkBox_FilterL.Location = new System.Drawing.Point(77, 19);
+            this.checkBox_FilterL.Name = "checkBox_FilterL";
+            this.checkBox_FilterL.Size = new System.Drawing.Size(57, 17);
+            this.checkBox_FilterL.TabIndex = 40;
+            this.checkBox_FilterL.Text = "Filter L";
+            this.checkBox_FilterL.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_FilterH
+            // 
+            this.checkBox_FilterH.AutoSize = true;
+            this.checkBox_FilterH.Location = new System.Drawing.Point(6, 19);
+            this.checkBox_FilterH.Name = "checkBox_FilterH";
+            this.checkBox_FilterH.Size = new System.Drawing.Size(59, 17);
+            this.checkBox_FilterH.TabIndex = 38;
+            this.checkBox_FilterH.Text = "Filter H";
+            this.checkBox_FilterH.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_ACQAMP
+            // 
+            this.checkBox_ACQAMP.Checked = true;
+            this.checkBox_ACQAMP.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox_ACQAMP.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.checkBox_ACQAMP.Location = new System.Drawing.Point(77, 62);
+            this.checkBox_ACQAMP.Name = "checkBox_ACQAMP";
+            this.checkBox_ACQAMP.Size = new System.Drawing.Size(71, 17);
+            this.checkBox_ACQAMP.TabIndex = 46;
+            this.checkBox_ACQAMP.Text = "ACQAMP";
+            this.checkBox_ACQAMP.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.checkBox_ACQAMP.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_Freeze1
+            // 
+            this.checkBox_Freeze1.AutoSize = true;
+            this.checkBox_Freeze1.Checked = true;
+            this.checkBox_Freeze1.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox_Freeze1.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.checkBox_Freeze1.Location = new System.Drawing.Point(6, 85);
+            this.checkBox_Freeze1.Name = "checkBox_Freeze1";
+            this.checkBox_Freeze1.Size = new System.Drawing.Size(67, 17);
+            this.checkBox_Freeze1.TabIndex = 47;
+            this.checkBox_Freeze1.Text = "Freeze 1";
+            this.checkBox_Freeze1.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_Freeze0
+            // 
+            this.checkBox_Freeze0.AutoSize = true;
+            this.checkBox_Freeze0.Checked = true;
+            this.checkBox_Freeze0.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox_Freeze0.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.checkBox_Freeze0.Location = new System.Drawing.Point(77, 85);
+            this.checkBox_Freeze0.Name = "checkBox_Freeze0";
+            this.checkBox_Freeze0.Size = new System.Drawing.Size(67, 17);
+            this.checkBox_Freeze0.TabIndex = 48;
+            this.checkBox_Freeze0.Text = "Freeze 0";
+            this.checkBox_Freeze0.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_Threset
+            // 
+            this.checkBox_Threset.AutoSize = true;
+            this.checkBox_Threset.Checked = true;
+            this.checkBox_Threset.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox_Threset.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.checkBox_Threset.Location = new System.Drawing.Point(6, 62);
+            this.checkBox_Threset.Name = "checkBox_Threset";
+            this.checkBox_Threset.Size = new System.Drawing.Size(62, 17);
+            this.checkBox_Threset.TabIndex = 49;
+            this.checkBox_Threset.Text = "Threset";
+            this.checkBox_Threset.UseVisualStyleBackColor = true;
+            // 
             // SerialDebugger
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.groupBox_AbicConfig);
             this.Controls.Add(this.button_GainAutoAdjust);
-            this.Controls.Add(this.hysteresisCB);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.pulse0Num);
             this.Controls.Add(this.label1);
@@ -498,9 +616,11 @@ namespace Hitager
             this.Controls.Add(this.addInvert1);
             this.Controls.Add(this.bits1);
             this.Name = "SerialDebugger";
-            this.Size = new System.Drawing.Size(532, 325);
+            this.Size = new System.Drawing.Size(607, 325);
             ((System.ComponentModel.ISupportInitialize)(this.pulse1Num)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pulse0Num)).EndInit();
+            this.groupBox_AbicConfig.ResumeLayout(false);
+            this.groupBox_AbicConfig.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -544,7 +664,16 @@ namespace Hitager
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.NumericUpDown pulse0Num;
-        private System.Windows.Forms.CheckBox hysteresisCB;
+        private System.Windows.Forms.CheckBox checkBox_AbicHysteresis;
         private System.Windows.Forms.Button button_GainAutoAdjust;
+        private System.Windows.Forms.GroupBox groupBox_AbicConfig;
+        private System.Windows.Forms.Button button_AbicGetConf;
+        private System.Windows.Forms.Button button_AbicSendConf;
+        private System.Windows.Forms.CheckBox checkBox_FilterL;
+        private System.Windows.Forms.CheckBox checkBox_FilterH;
+        private System.Windows.Forms.CheckBox checkBox_ACQAMP;
+        private System.Windows.Forms.CheckBox checkBox_Threset;
+        private System.Windows.Forms.CheckBox checkBox_Freeze0;
+        private System.Windows.Forms.CheckBox checkBox_Freeze1;
     }
 }
