@@ -25,13 +25,13 @@ const int din_pin = 2; //Use with Arduino Nano
 const char hitagerVersion[] = {"210"};  // Major Version, Minor Version, Fix
 
 
-#define START_TIMER TCCR1B |= (1 << CS10)
-#define STOP_TIMER TCCR1B &= (0 << CS10)
+#define START_TIMER TCCR1B |= ((1 << CS10)|(1 << CS11))
+#define STOP_TIMER TCCR1B &= ~((1 << CS10)|(1 << CS11))
 
 byte sampcont=0x17;
 
-int isrtimes[400];
-int *isrtimes_ptr = isrtimes;
+unsigned int isrtimes[400];
+unsigned int *isrtimes_ptr = isrtimes;
 volatile int bitsCnt=0;
 volatile int isrCnt=0;
 volatile int capturedone=0;
@@ -106,7 +106,8 @@ void setup()
   TCCR2B = 0x09;
   OCR2A = 3;
   OCR2B = 1;
-
+  TCCR1A = 0; //Normal mode, count until 0xFFFF
+  
   /* Pin configuration*/
   pinMode(SCK_pin, OUTPUT);
   pinMode(dout_pin, OUTPUT);
@@ -627,13 +628,13 @@ void readTagResp()
   isrCnt=0;
   capturedone=0;
   bitsCnt=0;
-  //byte timski = TIMSK0;
   //TIMSK0=0;
-  TCCR1B =2;
   EIFR = (1<<PCIF0);            // Clear EINT0-flag
+  TIFR1 = (1<<TOV1);
   START_TIMER;
   attachInterrupt(digitalPinToInterrupt(din_pin) , pin_ISR, CHANGE );
-
+  TIMSK1 = (1<<TOIE1); // Activate Timer1 Overflow Interrupt
+  
   for(volatile int i = 0;i<100;i++)
     for(volatile int k = 0;k<200;k++);
 
@@ -644,9 +645,11 @@ void readTagResp()
     isrCnt++;
   }
   digitalWrite(SCK_pin, HIGH); 
+
   STOP_TIMER;
-  //TIMSK0 = timski;
+
   detachInterrupt(digitalPinToInterrupt(din_pin));
+  TIMSK1 &= ~(1<<TOIE1); // Deactivate Timer1 Overflow Interrupt
 
 }
 
@@ -707,14 +710,23 @@ void writePCF7991Reg(byte _send, int bits)
 void pin_ISR()
 {
   unsigned int travelTime = TCNT1; 
-  TCNT1=0;
+  TCNT1=1;
 
   if(isrCnt>0)
   {
-    if(digitalRead(din_pin))
+    /* indicate rising or falling edge */
+    if(digitalRead(din_pin)){
       travelTime&= ~1;
-    else
+      }
+    else{
       travelTime|= 1;
+    }
+    /* Correct time to max in case of timer overflow */
+    if(TIFR1&(1 << TOV1)){
+      //Timer1_Overflow = 0;
+      travelTime |= 65534;
+      TIFR1 = (1<<TOV1);
+    }
   }
   else
   {
@@ -723,8 +735,7 @@ void pin_ISR()
   }
   isrtimes_ptr[isrCnt-1]=travelTime;
   if(isrCnt<400)
-    isrCnt++;
-    
+    isrCnt++;  
 }
 
 void processManchester() 
@@ -738,7 +749,7 @@ void processManchester()
   int start = 0;
   for(start = 0; start<10; start++)
   {
-    if(isrtimes_ptr[start]<45)
+    if(isrtimes_ptr[start]<55)
       break;
   }
   start+=3;
@@ -793,9 +804,9 @@ void processManchester()
             state++;
           }
         }
-      }
-      else
-      {
+     }
+     else
+     {
         if(travelTime>45)
         {
           if(state)
@@ -824,19 +835,19 @@ void processManchester()
             state++;
           }
         }
-      }
-      if(bitcount>7)
+     }
+     if(bitcount>7)
       {
         
         bitcount = 0;
         bytecount++;
       }
-      if(travelTime>80)
-      {
+     if(travelTime>80)
+     {
         if(bitcount>0)
           bytecount++;
         break;
-      }
+     }
  }
   
   char hash[20];
