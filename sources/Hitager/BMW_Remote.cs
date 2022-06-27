@@ -78,7 +78,7 @@ namespace Hitager
             }
             else if (KeyID.Substring(6,1) != "4")
             {
-                message = "Reading Remote only working for PCF7944 (5WK49121) Key. Do you want to try to read it anyway?";
+                message = "Reading Remote not possible for locked PCF7945/53 Key. Do you still want to try it?";
 
                 DialogResult result = MessageBox.Show(message, caption, buttons);
                 if (result == System.Windows.Forms.DialogResult.Cancel)
@@ -91,14 +91,10 @@ namespace Hitager
             string remoteDataBlock;
             tries = 0;
 
-            do
-            {
-                remoteDataBlock = bmwHt2.readBlocks(15, 15);
-                tries++;
-            } while ((remoteDataBlock.Substring(5 * 8, 4) != "0000") && (tries < 3));
+            remoteDataBlock = bmwHt2.readBlocks(15, 15);
 
-
-            if (remoteDataBlock.Length == 64)
+            /* 5WK49121 PCF7944 Memory Layout */
+            if (remoteDataBlock.Length == 64 && KeyID.Substring(6,1) == "4")
             {
                 this.maskedTextBox_RSK_HI.Text = remoteDataBlock.Substring((5 * 8) + 4, 4);
                 this.maskedTextBox_RSK_LO.Text = remoteDataBlock.Substring(4 * 8, 8);
@@ -114,13 +110,23 @@ namespace Hitager
                     this.maskedTextBox_Sync.Text = remoteDataBlock.Substring(0, 8);
                 }
             }
-            else
+            /* 5WK49125 Memory layout */
+            else if (remoteDataBlock.Length == 64 && KeyID.Substring(6, 1) == "9")
             {
+                this.maskedTextBox_RSK_HI.Text = remoteDataBlock.Substring((5 * 8) + 4, 4);
+                this.maskedTextBox_RSK_LO.Text = remoteDataBlock.Substring(4 * 8, 8);
+                this.maskedTextBox_RemoteID.Text = remoteDataBlock.Substring((5 * 8), 4);
+                this.maskedTextBox_Conf.Text = remoteDataBlock.Substring((3 * 8), 8);
+                this.maskedTextBox_Sync.Text = remoteDataBlock.Substring(0, 8);
+            }
+            else
+            {               
                 this.maskedTextBox_RSK_HI.Text = "ERROR";
                 this.maskedTextBox_RSK_LO.Text = "ERROR";
+                this.maskedTextBox_RemoteID.Text = "ERROR";
+                this.maskedTextBox_Conf.Text = "ERROR";
+                this.maskedTextBox_Sync.Text = "ERROR";
             }
-
-
         }
 
         private void button_WriteRemote_Click(object sender, EventArgs e)

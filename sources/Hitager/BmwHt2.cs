@@ -92,7 +92,16 @@ namespace Hitager
         {
             portHandler.portWR("o");
 
-            String cardID = portHandler.portWR("i05C0");
+            String cardID;
+            int tries = 0;
+
+            do
+            {
+                cardID = portHandler.portWR("i05C0");
+                tries++;
+                
+            } while (cardID.Length < 8 && tries < 3);
+            
             if (cardID.Equals("TIMEOUT"))
             {
                 handleDebug("TIMEOUT");
@@ -102,6 +111,7 @@ namespace Hitager
             {
                 handleDebug("ERROR ID");
                 handleDebug("Please retry reading!");
+                cardID = "b1b1b1b1";
             }
             portHandler.portWR("f");
 
@@ -135,10 +145,13 @@ namespace Hitager
             bool resetBlocks = false;
             read.Enabled = false;
             write.Enabled = false;
+
+            String Key_ID = ReadID();  //Necessary for distinguishing 5WK49125 /5WK49121
+
             portHandler.portWR("o");
             String pages = "";
-  
-            sendCmdUntilResponse("i0540", "FFFFFFE8", 10);
+
+            sendCmdUntilResponse("i0540", "FFFFFFE8", 10);  // Enter to XMA Mode
 
             for (int j = blockAddressStart; j <= blockAddressEnd; j++)
             {
@@ -170,9 +183,9 @@ namespace Hitager
                         /* Not readable pages */
                         received = "B1B1B1B1";
                     }
-                    else if (j == 15)
+                    else if (j == 15 && Key_ID.Substring(6, 1).Equals('4'))
                     {
-                        /* Special procedure for protected block */
+                        /* Special procedure for reading protected block PCF7944 5WK49121 */
                         Thread.Sleep(10);
                         sendCmdUntilResponse("i0540", "FFFFFFE8", 10);
                         Thread.Sleep(10);
