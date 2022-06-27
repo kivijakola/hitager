@@ -45,9 +45,11 @@ namespace Hitager
             this.comboBox_bankSelect = new System.Windows.Forms.ComboBox();
             this.button_FetchRemoteData = new System.Windows.Forms.Button();
             this.groupBox_CasData = new System.Windows.Forms.GroupBox();
+            this.label_CasDumpStatus = new System.Windows.Forms.Label();
             this.label_CasDumpStatusLabel = new System.Windows.Forms.Label();
             this.groupBox_keyData = new System.Windows.Forms.GroupBox();
-            this.label_CasDumpStatus = new System.Windows.Forms.Label();
+            this.label_CasDumpMaskLabel = new System.Windows.Forms.Label();
+            this.label_CasMask = new System.Windows.Forms.Label();
             this.groupBox_CasData.SuspendLayout();
             this.groupBox_keyData.SuspendLayout();
             this.SuspendLayout();
@@ -77,7 +79,7 @@ namespace Hitager
             this.ReadRemote_Button.Location = new System.Drawing.Point(10, 162);
             this.ReadRemote_Button.Name = "ReadRemote_Button";
             this.ReadRemote_Button.Size = new System.Drawing.Size(87, 36);
-            this.ReadRemote_Button.TabIndex = 23;
+            this.ReadRemote_Button.TabIndex = 6;
             this.ReadRemote_Button.Text = "Read";
             this.ReadRemote_Button.UseVisualStyleBackColor = true;
             this.ReadRemote_Button.Click += new System.EventHandler(this.Read_Remote_Click);
@@ -117,7 +119,7 @@ namespace Hitager
             this.button_WriteRemote.Location = new System.Drawing.Point(124, 162);
             this.button_WriteRemote.Name = "button_WriteRemote";
             this.button_WriteRemote.Size = new System.Drawing.Size(87, 36);
-            this.button_WriteRemote.TabIndex = 30;
+            this.button_WriteRemote.TabIndex = 7;
             this.button_WriteRemote.Text = "Write";
             this.button_WriteRemote.UseVisualStyleBackColor = true;
             this.button_WriteRemote.Click += new System.EventHandler(this.button_WriteRemote_Click);
@@ -129,7 +131,7 @@ namespace Hitager
             this.maskedTextBox_RemoteID.Mask = "&& &&";
             this.maskedTextBox_RemoteID.Name = "maskedTextBox_RemoteID";
             this.maskedTextBox_RemoteID.Size = new System.Drawing.Size(46, 23);
-            this.maskedTextBox_RemoteID.TabIndex = 31;
+            this.maskedTextBox_RemoteID.TabIndex = 1;
             this.maskedTextBox_RemoteID.Text = "0000";
             this.maskedTextBox_RemoteID.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.maskedTextBox_RemoteID.TextMaskFormat = System.Windows.Forms.MaskFormat.ExcludePromptAndLiterals;
@@ -141,7 +143,7 @@ namespace Hitager
             this.maskedTextBox_RSK_HI.Mask = "&& &&";
             this.maskedTextBox_RSK_HI.Name = "maskedTextBox_RSK_HI";
             this.maskedTextBox_RSK_HI.Size = new System.Drawing.Size(46, 23);
-            this.maskedTextBox_RSK_HI.TabIndex = 32;
+            this.maskedTextBox_RSK_HI.TabIndex = 2;
             this.maskedTextBox_RSK_HI.Text = "0000";
             this.maskedTextBox_RSK_HI.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.maskedTextBox_RSK_HI.TextMaskFormat = System.Windows.Forms.MaskFormat.ExcludePromptAndLiterals;
@@ -153,7 +155,7 @@ namespace Hitager
             this.maskedTextBox_RSK_LO.Mask = "&& && && &&";
             this.maskedTextBox_RSK_LO.Name = "maskedTextBox_RSK_LO";
             this.maskedTextBox_RSK_LO.Size = new System.Drawing.Size(81, 23);
-            this.maskedTextBox_RSK_LO.TabIndex = 33;
+            this.maskedTextBox_RSK_LO.TabIndex = 3;
             this.maskedTextBox_RSK_LO.Text = "00000000";
             this.maskedTextBox_RSK_LO.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.maskedTextBox_RSK_LO.TextMaskFormat = System.Windows.Forms.MaskFormat.ExcludePromptAndLiterals;
@@ -165,7 +167,7 @@ namespace Hitager
             this.maskedTextBox_Sync.Mask = "&& && && &&";
             this.maskedTextBox_Sync.Name = "maskedTextBox_Sync";
             this.maskedTextBox_Sync.Size = new System.Drawing.Size(81, 23);
-            this.maskedTextBox_Sync.TabIndex = 34;
+            this.maskedTextBox_Sync.TabIndex = 4;
             this.maskedTextBox_Sync.Text = "00000000";
             this.maskedTextBox_Sync.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.maskedTextBox_Sync.TextMaskFormat = System.Windows.Forms.MaskFormat.ExcludePromptAndLiterals;
@@ -177,7 +179,7 @@ namespace Hitager
             this.maskedTextBox_Conf.Mask = "&& && && &&";
             this.maskedTextBox_Conf.Name = "maskedTextBox_Conf";
             this.maskedTextBox_Conf.Size = new System.Drawing.Size(81, 23);
-            this.maskedTextBox_Conf.TabIndex = 35;
+            this.maskedTextBox_Conf.TabIndex = 5;
             this.maskedTextBox_Conf.Text = "00000000";
             this.maskedTextBox_Conf.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.maskedTextBox_Conf.TextMaskFormat = System.Windows.Forms.MaskFormat.ExcludePromptAndLiterals;
@@ -187,7 +189,7 @@ namespace Hitager
             this.button_OpenCasDump.Location = new System.Drawing.Point(10, 19);
             this.button_OpenCasDump.Name = "button_OpenCasDump";
             this.button_OpenCasDump.Size = new System.Drawing.Size(104, 21);
-            this.button_OpenCasDump.TabIndex = 36;
+            this.button_OpenCasDump.TabIndex = 8;
             this.button_OpenCasDump.Text = "Open CAS Dump";
             this.button_OpenCasDump.UseVisualStyleBackColor = true;
             this.button_OpenCasDump.Click += new System.EventHandler(this.button_OpenCasDump_Click);
@@ -195,23 +197,25 @@ namespace Hitager
             // comboBox_bankSelect
             // 
             this.comboBox_bankSelect.FormattingEnabled = true;
-            this.comboBox_bankSelect.Location = new System.Drawing.Point(10, 73);
+            this.comboBox_bankSelect.Location = new System.Drawing.Point(10, 97);
             this.comboBox_bankSelect.Name = "comboBox_bankSelect";
             this.comboBox_bankSelect.Size = new System.Drawing.Size(130, 21);
-            this.comboBox_bankSelect.TabIndex = 37;
+            this.comboBox_bankSelect.TabIndex = 9;
             // 
             // button_FetchRemoteData
             // 
-            this.button_FetchRemoteData.Location = new System.Drawing.Point(146, 73);
+            this.button_FetchRemoteData.Location = new System.Drawing.Point(146, 96);
             this.button_FetchRemoteData.Name = "button_FetchRemoteData";
             this.button_FetchRemoteData.Size = new System.Drawing.Size(73, 21);
-            this.button_FetchRemoteData.TabIndex = 38;
+            this.button_FetchRemoteData.TabIndex = 10;
             this.button_FetchRemoteData.Text = "Get Data";
             this.button_FetchRemoteData.UseVisualStyleBackColor = true;
             this.button_FetchRemoteData.Click += new System.EventHandler(this.button_FetchRemoteData_Click);
             // 
             // groupBox_CasData
             // 
+            this.groupBox_CasData.Controls.Add(this.label_CasMask);
+            this.groupBox_CasData.Controls.Add(this.label_CasDumpMaskLabel);
             this.groupBox_CasData.Controls.Add(this.label_CasDumpStatus);
             this.groupBox_CasData.Controls.Add(this.label_CasDumpStatusLabel);
             this.groupBox_CasData.Controls.Add(this.comboBox_bankSelect);
@@ -219,10 +223,21 @@ namespace Hitager
             this.groupBox_CasData.Controls.Add(this.button_OpenCasDump);
             this.groupBox_CasData.Location = new System.Drawing.Point(12, 210);
             this.groupBox_CasData.Name = "groupBox_CasData";
-            this.groupBox_CasData.Size = new System.Drawing.Size(225, 100);
+            this.groupBox_CasData.Size = new System.Drawing.Size(225, 133);
             this.groupBox_CasData.TabIndex = 39;
             this.groupBox_CasData.TabStop = false;
             this.groupBox_CasData.Text = "CAS Data";
+            // 
+            // label_CasDumpStatus
+            // 
+            this.label_CasDumpStatus.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label_CasDumpStatus.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label_CasDumpStatus.Location = new System.Drawing.Point(107, 43);
+            this.label_CasDumpStatus.Name = "label_CasDumpStatus";
+            this.label_CasDumpStatus.Size = new System.Drawing.Size(112, 17);
+            this.label_CasDumpStatus.TabIndex = 40;
+            this.label_CasDumpStatus.Text = "No dump loaded";
+            this.label_CasDumpStatus.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // label_CasDumpStatusLabel
             // 
@@ -255,22 +270,31 @@ namespace Hitager
             this.groupBox_keyData.TabStop = false;
             this.groupBox_keyData.Text = "Key Data";
             // 
-            // label_CasDumpStatus
+            // label_CasDumpMaskLabel
             // 
-            this.label_CasDumpStatus.AutoSize = true;
-            this.label_CasDumpStatus.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label_CasDumpStatus.Location = new System.Drawing.Point(110, 43);
-            this.label_CasDumpStatus.Name = "label_CasDumpStatus";
-            this.label_CasDumpStatus.Size = new System.Drawing.Size(112, 17);
-            this.label_CasDumpStatus.TabIndex = 40;
-            this.label_CasDumpStatus.Text = "No dump loaded";
-            this.label_CasDumpStatus.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.label_CasDumpMaskLabel.AutoSize = true;
+            this.label_CasDumpMaskLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label_CasDumpMaskLabel.Location = new System.Drawing.Point(11, 66);
+            this.label_CasDumpMaskLabel.Name = "label_CasDumpMaskLabel";
+            this.label_CasDumpMaskLabel.Size = new System.Drawing.Size(118, 17);
+            this.label_CasDumpMaskLabel.TabIndex = 41;
+            this.label_CasDumpMaskLabel.Text = "µC Mask Version:";
+            // 
+            // label_CasMask
+            // 
+            this.label_CasMask.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label_CasMask.Location = new System.Drawing.Point(149, 66);
+            this.label_CasMask.Name = "label_CasMask";
+            this.label_CasMask.Size = new System.Drawing.Size(70, 17);
+            this.label_CasMask.TabIndex = 42;
+            this.label_CasMask.Text = "N/A";
+            this.label_CasMask.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // BMW_Remote
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(249, 323);
+            this.ClientSize = new System.Drawing.Size(251, 355);
             this.Controls.Add(this.groupBox_keyData);
             this.Controls.Add(this.groupBox_CasData);
             this.Name = "BMW_Remote";
@@ -303,5 +327,7 @@ namespace Hitager
         private System.Windows.Forms.Label label_CasDumpStatusLabel;
         private System.Windows.Forms.GroupBox groupBox_keyData;
         private System.Windows.Forms.Label label_CasDumpStatus;
+        private System.Windows.Forms.Label label_CasMask;
+        private System.Windows.Forms.Label label_CasDumpMaskLabel;
     }
 }

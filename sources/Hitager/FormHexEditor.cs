@@ -79,6 +79,8 @@ namespace Hitager
 			encodingToolStripComboBox.SelectedIndex = 0;
 
             UpdateFormWidth();
+
+            serialDebugger1.FormHexEditor = this;
         }
 
 		void encodingMenuItem_Clicked(object sender, EventArgs e)
@@ -780,13 +782,20 @@ namespace Hitager
             }
             else if (message.Contains("Hitager version"))
             {
+                String ErrorMessage = "Hitager version on arduino is too old. You should update in order to ensure compatibility!";
+                String caption = "Warning";
+
+                MessageBoxButtons buttons = MessageBoxButtons.OKCancel;
+
                 string[] sub = message.Split(':');
                 if (sub.Length == 2)
                 {
+                    /* Old version string (one number) */
                     int version = int.Parse(sub[1], System.Globalization.NumberStyles.HexNumber);
                     if (version <2)
                     {
                         statusArduino.BackColor = Color.Red;
+                        MessageBox.Show(ErrorMessage, caption, buttons);
                     }
                     else
                     {
@@ -794,6 +803,20 @@ namespace Hitager
                     }
 
                 }
+                else if(sub.Length == 4)
+                {
+                    /* New style version string (three numbers) introduced for Hitager v2.1.0 */
+                    int version = int.Parse(sub[1], System.Globalization.NumberStyles.HexNumber);
+                    if(version >= 210)
+                    {
+                        statusArduino.BackColor = Color.Green;
+                    }
+                    else
+                    {
+                        MessageBox.Show(ErrorMessage, caption, buttons);
+                    }
+                }
+
 
             }
         }
@@ -823,7 +846,14 @@ namespace Hitager
         {
             set
             {
+                // Suppress firing of ValueChanged event in case value is changed by external event
+                gainNum.ValueChanged -= new EventHandler(this.gainNum_ValueChanged);
                 gainNum.Value = value;
+                gainNum.ValueChanged += new EventHandler(this.gainNum_ValueChanged);
+            }
+            get
+            {
+                return (int)gainNum.Value;
             }
         }
         private void phaseNum_ValueChanged(object sender, EventArgs e)
