@@ -747,21 +747,35 @@ void processManchester()
   int errorCnt=0;
   int state = 1;
   int start = 0;
+  unsigned int pulsetime_fil = isrtimes_ptr[0];
+  uint8_t fir_coeff = 13; // filter constant ~0,1
+  
   for(start = 0; start<10; start++)
   {
+    pulsetime_fil = fir_filter(pulsetime_fil,isrtimes_ptr[start],fir_coeff);
     if(isrtimes_ptr[start]<55)
       break;
   }
   start+=3;
-  if(((isrtimes_ptr[start])&1)==0) 
+
+  /* Aadapt filtered pulse time during first pulses */
+  for(uint8_t i=start; i<start+3; i++){
+      pulsetime_fil = fir_filter(pulsetime_fil,isrtimes_ptr[i],fir_coeff);
+  }
+  
+  if(((isrtimes_ptr[start])&1)==0){
    start++;
+   pulsetime_fil = fir_filter(pulsetime_fil,isrtimes_ptr[start],fir_coeff);
+  }
 
   for(int i = start; i<isrCnt; i++)
   {
+    int pulsetime_thresh = pulsetime_fil + (pulsetime_fil/3);
     int travelTime = isrtimes_ptr[i];
+    
     if(((travelTime&1)==1))//high
     {
-        if(travelTime>45)
+        if(travelTime>pulsetime_thresh)
         {
           //travelTime =11;
           if(state)
@@ -787,7 +801,7 @@ void processManchester()
         }
         else
         {
-          //travelTime =1;
+          pulsetime_fil = fir_filter(pulsetime_fil,travelTime,fir_coeff);
           if(state)
           {
             state = 0;
@@ -807,7 +821,7 @@ void processManchester()
      }
      else
      {
-        if(travelTime>45)
+        if(travelTime>pulsetime_thresh)
         {
           if(state)
           {
@@ -824,6 +838,7 @@ void processManchester()
         }
         else
         {
+          pulsetime_fil = fir_filter(pulsetime_fil,travelTime,fir_coeff);
           if(state)
           {
             state = 0;
@@ -926,3 +941,13 @@ void processcdp()
   Serial.print("\n");      
 
 }
+
+/* Fir filter for filtering pulse times */
+/* fil_coeff_fac128: Hex 1...128 --> Phys 0.0078125...1 (Proposal Phys 0.1015625 --> Hex 13) */
+unsigned int fir_filter(unsigned int pulse_fil_in, unsigned int current_pulse, uint8_t fil_coeff_fac128){
+     unsigned int pulse_fil_out;
+     pulse_fil_out = (unsigned int)(pulse_fil_in - (((int)((int)pulse_fil_in - (int)current_pulse) * (int)fil_coeff_fac128)/128)); 
+     return pulse_fil_out;
+}
+ 
+ 
