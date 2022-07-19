@@ -21,8 +21,9 @@ const int dout_pin = 7;
 //const int din_pin = 21; // Arduino Mega2560 original value 21 Mega2560 can also use 2 
 const int din_pin = 2; //Use with Arduino Nano
 //Note: din_pin must have external interrupt feature!
+const int test_pin = 4;
 
-const char hitagerVersion[] = {"210"};  // Major Version, Minor Version, Fix
+const char hitagerVersion[] = {"211"};  // Major Version, Minor Version, Fix
 
 
 #define START_TIMER TCCR1B |= ((1 << CS10)|(1 << CS11))
@@ -91,9 +92,10 @@ void setup()
   AbicConf_Page1.SetPageCmd = 1;
   AbicConf_Page2.SetPageCmd = 1;
   
-  AbicConf_Page0.gain = 1;
+  AbicConf_Page0.gain = 2;
   AbicConf_Page0.filter_h = 1;
-  AbicConf_Page1.hysteresis = 1;
+  AbicConf_Page0.filter_l = 1;
+  AbicConf_Page1.hysteresis = 0;
   AbicConf_Page1.page_nr = 1;
   AbicConf_Page2.page_nr = 2;
   
@@ -101,7 +103,8 @@ void setup()
   TIMSK0=0;
   
   /* Configure external clock output for PCF7991 ABIC */
-  pinMode(CLKOUT, OUTPUT); 
+  pinMode(CLKOUT, OUTPUT);
+  pinMode(test_pin,OUTPUT); 
   TCCR2A = 0x23;
   TCCR2B = 0x09;
   OCR2A = 3;
@@ -625,14 +628,17 @@ void writeToTag(byte *data, int bits)
 void readTagResp()
 {
   writePCF7991Reg(0xe0,3);
+  START_TIMER;
+  TCNT1=1;
   isrCnt=0;
   capturedone=0;
   bitsCnt=0;
   //TIMSK0=0;
   EIFR = (1<<PCIF0);            // Clear EINT0-flag
   TIFR1 = (1<<TOV1);
-  START_TIMER;
+  digitalWrite(test_pin,!digitalRead(4));
   attachInterrupt(digitalPinToInterrupt(din_pin) , pin_ISR, CHANGE );
+
   TIMSK1 = (1<<TOIE1); // Activate Timer1 Overflow Interrupt
   
   for(volatile int i = 0;i<100;i++)
@@ -644,8 +650,7 @@ void readTagResp()
     isrtimes_ptr[isrCnt-1]=isrtimes_ptr[isrCnt-2]+201;
     isrCnt++;
   }
-  digitalWrite(SCK_pin, HIGH); 
-
+  
   STOP_TIMER;
 
   detachInterrupt(digitalPinToInterrupt(din_pin));
@@ -683,26 +688,28 @@ void communicateTag(byte  *tagcmd, unsigned int cmdLengt)
 
 
 
-void writePCF7991Reg(byte _send, int bits)  
+void writePCF7991Reg(byte _send, uint8_t bits)  
 {
 
   pinMode(dout_pin, OUTPUT);
   digitalWrite(dout_pin, LOW);
+  _delay_us(50);
   digitalWrite(SCK_pin, HIGH); 
   _delay_us(50);
   digitalWrite(dout_pin, HIGH);
   _delay_us(50);   
   digitalWrite(SCK_pin, LOW);   
   
-  for(int i=0; i<bits; i++) 
+  for(uint8_t i=0; i<bits; i++) 
   {
+    _delay_us(50);
     digitalWrite(dout_pin, bitRead(_send, 7-i));   
     _delay_us(50);
     digitalWrite(SCK_pin, HIGH);                  
     _delay_us(50);
     
     digitalWrite(SCK_pin, LOW);                 
-    _delay_us(50);
+
   }
   
 }
@@ -712,8 +719,7 @@ void pin_ISR()
   unsigned int travelTime = TCNT1; 
   TCNT1=1;
 
-  if(isrCnt>0)
-  {
+
     /* indicate rising or falling edge */
     if(digitalRead(din_pin)){
       travelTime&= ~1;
@@ -727,13 +733,9 @@ void pin_ISR()
       travelTime |= 65534;
       TIFR1 = (1<<TOV1);
     }
-  }
-  else
-  {
-    isrCnt++;
-    return;
-  }
-  isrtimes_ptr[isrCnt-1]=travelTime;
+
+
+  isrtimes_ptr[isrCnt]=travelTime;
   if(isrCnt<400)
     isrCnt++;  
 }
@@ -747,32 +749,32 @@ void processManchester()
   int errorCnt=0;
   int state = 1;
   int start = 0;
-  unsigned int pulsetime_fil = isrtimes_ptr[0];
-  uint8_t fir_coeff = 13; // filter constant ~0,1
+  int pulsetime_fil = 0;
   
   for(start = 0; start<10; start++)
   {
-    pulsetime_fil = fir_filter(pulsetime_fil,isrtimes_ptr[start],fir_coeff);
     if(isrtimes_ptr[start]<55)
       break;
   }
   start+=3;
-
+  
   /* Aadapt filtered pulse time during first pulses */
-  for(uint8_t i=start; i<start+3; i++){
-      pulsetime_fil = fir_filter(pulsetime_fil,isrtimes_ptr[i],fir_coeff);
+  int pulsetime_accum = 0;
+  for(uint8_t i=start+1; i<start+4; i++){
+      pulsetime_accum += isrtimes_ptr[i];
   }
+  pulsetime_fil = pulsetime_accum / 4;
   
   if(((isrtimes_ptr[start])&1)==0){
-   start++;
-   pulsetime_fil = fir_filter(pulsetime_fil,isrtimes_ptr[start],fir_coeff);
+   start--;
+   pulsetime_fil = fir_filter(pulsetime_fil,isrtimes_ptr[start] );
   }
 
   for(int i = start; i<isrCnt; i++)
   {
-    int pulsetime_thresh = pulsetime_fil + (pulsetime_fil/3);
+    int pulsetime_thresh = pulsetime_fil + (pulsetime_fil/2);
     int travelTime = isrtimes_ptr[i];
-    
+        
     if(((travelTime&1)==1))//high
     {
         if(travelTime>pulsetime_thresh)
@@ -801,7 +803,7 @@ void processManchester()
         }
         else
         {
-          pulsetime_fil = fir_filter(pulsetime_fil,travelTime,fir_coeff);
+          pulsetime_fil = fir_filter(pulsetime_fil,travelTime );
           if(state)
           {
             state = 0;
@@ -838,7 +840,7 @@ void processManchester()
         }
         else
         {
-          pulsetime_fil = fir_filter(pulsetime_fil,travelTime,fir_coeff);
+          pulsetime_fil = fir_filter(pulsetime_fil,travelTime );
           if(state)
           {
             state = 0;
@@ -851,6 +853,7 @@ void processManchester()
           }
         }
      }
+     
      if(bitcount>7)
       {
         
@@ -877,7 +880,6 @@ void processManchester()
     
     }
   Serial.print("\n");      
-
 }
 
 void processcdp() 
@@ -942,12 +944,18 @@ void processcdp()
 
 }
 
-/* Fir filter for filtering pulse times */
-/* fil_coeff_fac128: Hex 1...128 --> Phys 0.0078125...1 (Proposal Phys 0.1015625 --> Hex 13) */
-unsigned int fir_filter(unsigned int pulse_fil_in, unsigned int current_pulse, uint8_t fil_coeff_fac128){
+/* Pulse time "short pulse" filtering */
+ unsigned int fir_filter(unsigned int pulse_fil_in, unsigned int current_pulse){
      unsigned int pulse_fil_out;
-     pulse_fil_out = (unsigned int)(pulse_fil_in - (((int)((int)pulse_fil_in - (int)current_pulse) * (int)fil_coeff_fac128)/128)); 
+     if(((int)pulse_fil_in - (int)current_pulse) > 3){
+        pulse_fil_out = pulse_fil_in - 1;
+     }
+     else if (((int)current_pulse - (int)pulse_fil_in) > 3){
+        pulse_fil_out = pulse_fil_in + 1;
+     }
+     else{
+        pulse_fil_out = pulse_fil_in;
+     }
      return pulse_fil_out;
-}
- 
- 
+ }
+     
