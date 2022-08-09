@@ -772,7 +772,8 @@ void processManchester()
 
   for(int i = start; i<isrCnt; i++)
   {
-    int pulsetime_thresh = pulsetime_fil + (pulsetime_fil/2);
+    //int pulsetime_thresh = pulsetime_fil + (pulsetime_fil/2);
+    int pulsetime_thresh = 55;
     int travelTime = isrtimes_ptr[i];
         
     if(((travelTime&1)==1))//high
