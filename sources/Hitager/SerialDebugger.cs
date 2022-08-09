@@ -303,21 +303,36 @@ namespace Hitager
 
         private void button_AbicGetConf_Click(object sender, EventArgs e)
         {
+            byte resp_byte;
             String response = portHandler.portWR("p0"); // Request reading Config Page 0 from PCF7991 (ABIC)
+            
+            if (response.Length == 2)
+            {
+                resp_byte = byte.Parse(response, System.Globalization.NumberStyles.HexNumber);
 
-            checkBox_FilterL.Checked = ((byte)response.ElementAt(1) & 1) == 1;
-            checkBox_FilterH.Checked = (((byte)response.ElementAt(1)) & 2) == 2;
-            FormHexEditor.AbicGain = ((byte)response.ElementAt(1) >> 2) & 3;
+                checkBox_FilterL.Checked = (resp_byte & 1) == 1;
+                checkBox_FilterH.Checked = (resp_byte & 2) == 2;
+                FormHexEditor.AbicGain = (resp_byte >> 2) & 3;
+            }
 
             response = portHandler.portWR("p1");
-            checkBox_AbicHysteresis.Checked = ((byte)response.ElementAt(1) & 2) == 2;
+            if (response.Length == 2)
+            {
+                resp_byte = byte.Parse(response, System.Globalization.NumberStyles.HexNumber);
+
+                checkBox_AbicHysteresis.Checked = (resp_byte & 2) == 2;
+            }
 
             response = portHandler.portWR("p2");
-            checkBox_Threset.Checked = ((byte)response.ElementAt(1) & 8) == 8;
-            checkBox_ACQAMP.Checked = ((byte)response.ElementAt(1) & 4) == 4;
-            checkBox_Freeze1.Checked = ((byte)response.ElementAt(1) & 2) == 2;
-            checkBox_Freeze0.Checked = ((byte)response.ElementAt(1) & 1) == 1;
+            if (response.Length == 2)
+            {
+                resp_byte = byte.Parse(response, System.Globalization.NumberStyles.HexNumber);
 
+                checkBox_Threset.Checked = (resp_byte & 8) == 8;
+                checkBox_ACQAMP.Checked = (resp_byte & 4) == 4;
+                checkBox_Freeze1.Checked = (resp_byte & 2) == 2;
+                checkBox_Freeze0.Checked = (resp_byte & 1) == 1;
+            }
         }
     }
 }

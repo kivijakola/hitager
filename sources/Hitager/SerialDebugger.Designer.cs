@@ -68,14 +68,14 @@ namespace Hitager
             this.checkBox_AbicHysteresis = new System.Windows.Forms.CheckBox();
             this.button_GainAutoAdjust = new System.Windows.Forms.Button();
             this.groupBox_AbicConfig = new System.Windows.Forms.GroupBox();
+            this.checkBox_Threset = new System.Windows.Forms.CheckBox();
+            this.checkBox_Freeze0 = new System.Windows.Forms.CheckBox();
+            this.checkBox_Freeze1 = new System.Windows.Forms.CheckBox();
+            this.checkBox_ACQAMP = new System.Windows.Forms.CheckBox();
             this.button_AbicGetConf = new System.Windows.Forms.Button();
             this.button_AbicSendConf = new System.Windows.Forms.Button();
             this.checkBox_FilterL = new System.Windows.Forms.CheckBox();
             this.checkBox_FilterH = new System.Windows.Forms.CheckBox();
-            this.checkBox_ACQAMP = new System.Windows.Forms.CheckBox();
-            this.checkBox_Freeze1 = new System.Windows.Forms.CheckBox();
-            this.checkBox_Freeze0 = new System.Windows.Forms.CheckBox();
-            this.checkBox_Threset = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.pulse1Num)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pulse0Num)).BeginInit();
             this.groupBox_AbicConfig.SuspendLayout();
@@ -442,8 +442,6 @@ namespace Hitager
             // checkBox_AbicHysteresis
             // 
             this.checkBox_AbicHysteresis.AutoSize = true;
-            this.checkBox_AbicHysteresis.Checked = true;
-            this.checkBox_AbicHysteresis.CheckState = System.Windows.Forms.CheckState.Checked;
             this.checkBox_AbicHysteresis.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.checkBox_AbicHysteresis.Location = new System.Drawing.Point(6, 39);
             this.checkBox_AbicHysteresis.Name = "checkBox_AbicHysteresis";
@@ -480,6 +478,50 @@ namespace Hitager
             this.groupBox_AbicConfig.TabIndex = 39;
             this.groupBox_AbicConfig.TabStop = false;
             this.groupBox_AbicConfig.Text = "ABIC Config";
+            // 
+            // checkBox_Threset
+            // 
+            this.checkBox_Threset.AutoSize = true;
+            this.checkBox_Threset.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.checkBox_Threset.Location = new System.Drawing.Point(6, 62);
+            this.checkBox_Threset.Name = "checkBox_Threset";
+            this.checkBox_Threset.Size = new System.Drawing.Size(62, 17);
+            this.checkBox_Threset.TabIndex = 49;
+            this.checkBox_Threset.Text = "Threset";
+            this.checkBox_Threset.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_Freeze0
+            // 
+            this.checkBox_Freeze0.AutoSize = true;
+            this.checkBox_Freeze0.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.checkBox_Freeze0.Location = new System.Drawing.Point(77, 85);
+            this.checkBox_Freeze0.Name = "checkBox_Freeze0";
+            this.checkBox_Freeze0.Size = new System.Drawing.Size(67, 17);
+            this.checkBox_Freeze0.TabIndex = 48;
+            this.checkBox_Freeze0.Text = "Freeze 0";
+            this.checkBox_Freeze0.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_Freeze1
+            // 
+            this.checkBox_Freeze1.AutoSize = true;
+            this.checkBox_Freeze1.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.checkBox_Freeze1.Location = new System.Drawing.Point(6, 85);
+            this.checkBox_Freeze1.Name = "checkBox_Freeze1";
+            this.checkBox_Freeze1.Size = new System.Drawing.Size(67, 17);
+            this.checkBox_Freeze1.TabIndex = 47;
+            this.checkBox_Freeze1.Text = "Freeze 1";
+            this.checkBox_Freeze1.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_ACQAMP
+            // 
+            this.checkBox_ACQAMP.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.checkBox_ACQAMP.Location = new System.Drawing.Point(77, 62);
+            this.checkBox_ACQAMP.Name = "checkBox_ACQAMP";
+            this.checkBox_ACQAMP.Size = new System.Drawing.Size(71, 17);
+            this.checkBox_ACQAMP.TabIndex = 46;
+            this.checkBox_ACQAMP.Text = "ACQAMP";
+            this.checkBox_ACQAMP.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.checkBox_ACQAMP.UseVisualStyleBackColor = true;
             // 
             // button_AbicGetConf
             // 
@@ -520,58 +562,6 @@ namespace Hitager
             this.checkBox_FilterH.TabIndex = 38;
             this.checkBox_FilterH.Text = "Filter H";
             this.checkBox_FilterH.UseVisualStyleBackColor = true;
-            // 
-            // checkBox_ACQAMP
-            // 
-            this.checkBox_ACQAMP.Checked = true;
-            this.checkBox_ACQAMP.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_ACQAMP.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.checkBox_ACQAMP.Location = new System.Drawing.Point(77, 62);
-            this.checkBox_ACQAMP.Name = "checkBox_ACQAMP";
-            this.checkBox_ACQAMP.Size = new System.Drawing.Size(71, 17);
-            this.checkBox_ACQAMP.TabIndex = 46;
-            this.checkBox_ACQAMP.Text = "ACQAMP";
-            this.checkBox_ACQAMP.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.checkBox_ACQAMP.UseVisualStyleBackColor = true;
-            // 
-            // checkBox_Freeze1
-            // 
-            this.checkBox_Freeze1.AutoSize = true;
-            this.checkBox_Freeze1.Checked = true;
-            this.checkBox_Freeze1.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_Freeze1.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.checkBox_Freeze1.Location = new System.Drawing.Point(6, 85);
-            this.checkBox_Freeze1.Name = "checkBox_Freeze1";
-            this.checkBox_Freeze1.Size = new System.Drawing.Size(67, 17);
-            this.checkBox_Freeze1.TabIndex = 47;
-            this.checkBox_Freeze1.Text = "Freeze 1";
-            this.checkBox_Freeze1.UseVisualStyleBackColor = true;
-            // 
-            // checkBox_Freeze0
-            // 
-            this.checkBox_Freeze0.AutoSize = true;
-            this.checkBox_Freeze0.Checked = true;
-            this.checkBox_Freeze0.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_Freeze0.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.checkBox_Freeze0.Location = new System.Drawing.Point(77, 85);
-            this.checkBox_Freeze0.Name = "checkBox_Freeze0";
-            this.checkBox_Freeze0.Size = new System.Drawing.Size(67, 17);
-            this.checkBox_Freeze0.TabIndex = 48;
-            this.checkBox_Freeze0.Text = "Freeze 0";
-            this.checkBox_Freeze0.UseVisualStyleBackColor = true;
-            // 
-            // checkBox_Threset
-            // 
-            this.checkBox_Threset.AutoSize = true;
-            this.checkBox_Threset.Checked = true;
-            this.checkBox_Threset.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_Threset.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.checkBox_Threset.Location = new System.Drawing.Point(6, 62);
-            this.checkBox_Threset.Name = "checkBox_Threset";
-            this.checkBox_Threset.Size = new System.Drawing.Size(62, 17);
-            this.checkBox_Threset.TabIndex = 49;
-            this.checkBox_Threset.Text = "Threset";
-            this.checkBox_Threset.UseVisualStyleBackColor = true;
             // 
             // SerialDebugger
             // 
