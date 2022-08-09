@@ -177,17 +177,17 @@ namespace Hitager
                 for (int i = 0; i < 8; i++)
                 {
                     String received = "00000000";
-
-                    if ((j == 0 || (j == 14 && i == 7) || j == 31))
+                    
+                    if (((j == 14 && i == 7) || j == 31))
                     {
                         /* Not readable pages */
                         received = "B1B1B1B1";
                     }
-                    else if (j == 15 && Key_ID.Substring(6, 1).Equals('4'))
+                    else if (j == 15 || j==0)
                     {
                         /* Special procedure for reading protected block PCF7944 5WK49121 */
                         Thread.Sleep(10);
-                        sendCmdUntilResponse("i0540", "FFFFFFE8", 10);
+                        sendCmdUntilResponse("i0540", "FFFFFFE8", 5);
                         Thread.Sleep(10);
                         received = ReadPage(i);
                     }

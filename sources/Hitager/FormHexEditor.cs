@@ -736,7 +736,7 @@ namespace Hitager
             portOutput.AppendText(message);
             
 
-            if (message.Contains("adapt target"))
+            if (message.Contains("adapt target") || message.Contains("Measured phase"))
             {
                 string[] sub = message.Split(':');
                 if(sub.Length==2)
