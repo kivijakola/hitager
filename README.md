@@ -4,7 +4,7 @@ Additional infos can be found at the homepage of the project initiator's [websit
 
 ## Main Features:
 - Supported Protocols:
-  - Hitag2, Hitag2+EE, Hitag2 Extended, Hitag2 BMW Extention
+  - Hitag2, Hitag2+EE, Hitag2 Extended, Hitag2 BMW EE Extention
   - Hitag3
   - Hitag AES
   - Hitag Pro
@@ -24,10 +24,10 @@ AESHitager PC <-------> Arduino <-------> PCF7991 IC <- - - - -> Key Transponder
 
 1. **Arduino**  
   - Download the latest Hitaguino release from the Github page
-  - **Option 1:**   
+  - **Flash Arduino (Option 1):**   
     Use Avrdudess (https://github.com/ZakKemble/AVRDUDESS, ~2MB) for uploading the .hex file only (Select "Arduino" as Programmer, Select proper COM Port, Baud Rate "115200", select .hex file in "Flash" section, click Go, wait until programming finished)
  
-   - **Option 2:**   
+   - **Flash Arduino (Option 2):**   
    Open the .ino file in your arduino IDE, compile & upload it to the board  
      
       **Hint:** It might be necessary to press and release the reset button on the araduino board shortly before upload process starts.
@@ -35,14 +35,16 @@ AESHitager PC <-------> Arduino <-------> PCF7991 IC <- - - - -> Key Transponder
 2. **RFID Reader**  
    It is possible to use any available PCB containing a PCF7991 base station IC (ABIC). The cheapest solution seems to be IPROG RFID Adapter (available for ~ 15$)
    
-   | Arduino Pin  | PCF7991 Pin Nr. | ABIC Pin Name | IPROG D-SUB PIN |
+   | Arduino Nano Pin  | PCF7991 Pin Nr. | PCF7991 Pin Name | IPROG D-SUB PIN |
    | :------------: | :----------: | :-----------: | :-------------: |
    |        D2      |      10      |       DOUT    |         5       |
    |        D7      |       9      |       DIN     |         3       |
    |        D6      |       8      |       CLK     |         4       |
-   |  D3 (optional) |       6      |      XTAL1    |        20       |
+   |  D3 / D9* (optional) |       6      |      XTAL1    |        20       |
    | GND (optional) |  (see Hint)  |   (see Hint)  |        36       |
    |   VCC / +5V    |      -       |        -      |        32       |
+   
+   \* : For Arduino Mega 2560
    
    <img src="/documentation/PCF7991_Footprint.JPG" width=30% height=30%>
    
@@ -51,7 +53,7 @@ AESHitager PC <-------> Arduino <-------> PCF7991 IC <- - - - -> Key Transponder
    **Hint 2:**  
    Connecting GND is only required if not connected via USB. In this case connect Arduino GND to PCB GND (not directly at ABIC GND pin)
    
-   **Variants:**
+   **Hardware Variants:**
     - **Hitag2 v3.1, ZedBull Mini** (and others boards with on-board crystal oscillator and µC):  
       - Connect Arduino according to table
       - Do not connect D3, as clock source is already present at the PCB
@@ -60,5 +62,6 @@ AESHitager PC <-------> Arduino <-------> PCF7991 IC <- - - - -> Key Transponder
     - **IPROG RFID Adapter**
       - The adapter can be used without any modification on the PCB
       - Connect with arduino according to table column "IPROG  D-Sub Pin"   <br>
-      <br>      
-      <img src="/documentation/D_SUB_44_IPROG_Connector.jpg" width=50% height=50%>
+      - Below the schematic of the Iprog PCB:
+      <img src="https://user-images.githubusercontent.com/82545992/183724661-752b45e0-bc28-4f21-9efb-90c9170f3230.png" width=30% height=30%>
+

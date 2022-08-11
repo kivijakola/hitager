@@ -155,6 +155,7 @@ namespace Hitager
 
             for (int j = blockAddressStart; j <= blockAddressEnd; j++)
             {
+                bool LvSpclPrcdRead = false;    // "Special procedure required"indicator
                 /* Select the block */
                 if (!(j == 0 || j == 31))
                 {
@@ -178,6 +179,7 @@ namespace Hitager
                 {
                     String received = "00000000";
                     
+
                     if (((j == 14 && i == 7) || j == 31))
                     {
                         /* Not readable pages */
@@ -185,11 +187,24 @@ namespace Hitager
                     }
                     else if (j == 15 || j==0)
                     {
-                        /* Special procedure for reading protected block PCF7944 5WK49121 */
-                        Thread.Sleep(10);
-                        sendCmdUntilResponse("i0540", "FFFFFFE8", 5);
-                        Thread.Sleep(10);
-                        received = ReadPage(i);
+                        if(LvSpclPrcdRead == false)
+                        {
+                            received = ReadPage(i);
+                        }
+                        
+                        if (received.Equals("B1B1B1B1") || LvSpclPrcdRead==true)
+                        {
+                            /* Try Special procedure for reading protected block PCF7944 5WK49121 */
+                            Thread.Sleep(10);
+                            sendCmdUntilResponse("i0540", "FFFFFFE8", 5);
+                            Thread.Sleep(10);
+                            received = ReadPage(i);
+                            if (!received.Equals("B1B1B1B1"))
+                            {
+                                /* If special reading procedure was successful, remember this for next block */
+                                LvSpclPrcdRead = true;
+                            }
+                        }
                     }
                     else
                     {
