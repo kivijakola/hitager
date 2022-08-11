@@ -12,15 +12,13 @@
 /* 4MHz clock output for PCF7991 ABIC */
 #if defined(__AVR_ATmega328P__)   // Setting for Arduino Nano and Pro Mini
 const int CLKOUT = 3;
-#elif(__AVR_ATmega2560__)   // Setting for Arduino Nano and Pro Mini
+#elif(__AVR_ATmega2560__)   // Setting for Arduino Mega 2560
 const int CLKOUT = 9;
 #endif
 
 const int SCK_pin = 6;
 const int dout_pin = 7;
-//const int din_pin = 21; // Arduino Mega2560 original value 21 Mega2560 can also use 2 
-const int din_pin = 2; //Use with Arduino Nano
-//Note: din_pin must have external interrupt feature!
+const int din_pin = 2;   //Note: din_pin must have external interrupt feature!
 const int test_pin = 4;
 
 const char hitagerVersion[] = {"211"};  // Major Version, Minor Version, Fix
