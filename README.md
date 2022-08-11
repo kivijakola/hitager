@@ -35,14 +35,16 @@ AESHitager PC <-------> Arduino <-------> PCF7991 IC <- - - - -> Key Transponder
 2. **RFID Reader**  
    It is possible to use any available PCB containing a PCF7991 base station IC (ABIC). The cheapest solution seems to be IPROG RFID Adapter (available for ~ 15$)
    
-   | Arduino Pin  | PCF7991 Pin Nr. | ABIC Pin Name | IPROG D-SUB PIN |
+   | Arduino Nano Pin  | PCF7991 Pin Nr. | PCF7991 Pin Name | IPROG D-SUB PIN |
    | :------------: | :----------: | :-----------: | :-------------: |
    |        D2      |      10      |       DOUT    |         5       |
    |        D7      |       9      |       DIN     |         3       |
    |        D6      |       8      |       CLK     |         4       |
-   |  D3 (optional) |       6      |      XTAL1    |        20       |
+   |  D3 / D9* (optional) |       6      |      XTAL1    |        20       |
    | GND (optional) |  (see Hint)  |   (see Hint)  |        36       |
    |   VCC / +5V    |      -       |        -      |        32       |
+   
+   \* : For Arduino Mega 2560
    
    <img src="/documentation/PCF7991_Footprint.JPG" width=30% height=30%>
    
